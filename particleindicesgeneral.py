@@ -79,6 +79,7 @@ boxSizeVel = s.boxsize * .1 * UnitLength_in_cm/UnitVelocity_in_cm_per_s * np.sqr
 
 #indices of haloes >300 dm particles and r200 not 0
 r200 = cat.data['frc2']
+haloPos = cat.data['fpos']
 over300idx, = np.where(np.logical_and(np.greater(cat.data['flty'][:,1],300),np.not_equal(r200,0.)))
 
 #Implementation for all halos
