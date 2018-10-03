@@ -73,7 +73,7 @@ s = gadget_readsnap(snapnum, snappath=path, snapbase=base, hdf5=True, loadonlyty
 cat = load_subfind(snapnum, dir=path + '/', hdf5=True)
 
 #Setup boxsize quantities
-s.boxsize *= s.time / s.hubbleparam #put boxsize in physical units
+boxSize = s.boxsize * s.time / s.hubbleparam #put boxsize in physical units
 boxSizeVel = s.boxsize * .1 * UnitLength_in_cm/UnitVelocity_in_cm_per_s * np.sqrt(s.omega0/s.time/s.time/s.time + s.omegalambda)
 
 
@@ -97,12 +97,12 @@ posdm = s.data['pos'][dmidx]
 velgas = s.data['vel'][gasidx]
 veldm = s.data['vel'][dmidx]
 
-for j in over300idx:
+for j in over300idx[:2]:
 	#Calculate indices of particles within r200
 	indgas, = np.where(dist2(posgas[:,0]-haloPos[j][0],posgas[:,1]-haloPos[j][1],posgas[:,2]-haloPos[j][2],boxSize)  < r200[j]**2)
 	allgasindex[j] = indgas
 	inddm, = np.where(dist2(posdm[:,0]-haloPos[j][0],posdm[:,1]-haloPos[j][1],posdm[:,2]-haloPos[j][2],boxSize)  < r200[j]**2)
 	alldmindex[j] = inddm
-np.save("particleindex_" + s_res +'_'+ s_vel + '_'+  str(snapnum) + ".npy", (goodidx, allgasindex[goodidx], alldmindex[goodidx]))
+np.save("particleindex_" + s_res +'_'+ s_vel + '_'+  str(snapnum) + ".npy", (over300idx, allgasindex[over300idx], alldmindex[over300idx]))
 
 
