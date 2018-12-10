@@ -1,21 +1,20 @@
 """
 Computes the indices for all particles in the spherical overdensity (DM/G) halos.
-Usage: ipython particleindicesgeneral.py res vel snapnum
-Returns: npy file wiht array of indices per halo.
+Usage: python particleindicesgeneral.py res vel snapnum
+Returns: npy file with array of indices per halo.
 
 read npy file with 
 
-goodidx, allgasidx, alldmidx = np.load("particleindexingoodhaloz10.npy")
+over300idx, indgas, inddm = np.load("particleindex.npy")
+over300idx.astype(int)
 """
+
 from __future__ import print_function, division
 from sys import argv
 import numpy as np
 import readsubfHDF5
 import snapHDF5 
 import hdf5lib
-from gadget import *
-from gadget_subfind import *
-import calcGrid
 
 def dx_wrap(dx,box):
 	#wraps to account for period boundary conditions. This mutates the original entry
@@ -41,68 +40,60 @@ ZSUN = 0.0127
 UnitLength_in_cm = 3.085678e21 # code length unit in cm/h
 UnitMass_in_g = 1.989e43       # code length unit in g/h
 UnitVelocity_in_cm_per_s = 1.0e5
-UnitTime_in_s= UnitLength_in_cm / UnitVelocity_in_cm_per_s
-UnitDensity_in_cgs= UnitMass_in_g/ np.power(UnitLength_in_cm,3)
-UnitPressure_in_cgs= UnitMass_in_g/ UnitLength_in_cm/ np.power(UnitTime_in_s,2)
-UnitEnergy_in_cgs= UnitMass_in_g * np.power(UnitLength_in_cm,2) / np.power(UnitTime_in_s,2)
-GCONST=GRAVITY_cgs/ np.power(UnitLength_in_cm,3) * UnitMass_in_g *  np.power(UnitTime_in_s,2)
-critical_density = 3.0*.1 * .1 / 8.0/np.pi/GCONST #.1 is for 1/Mpc to 1/kpc, also in units of h^2
+UnitTime_in_s = UnitLength_in_cm / UnitVelocity_in_cm_per_s
+UnitDensity_in_cgs = UnitMass_in_g/ np.power(UnitLength_in_cm,3)
+UnitPressure_in_cgs = UnitMass_in_g / UnitLength_in_cm / np.power(UnitTime_in_s,2)
+UnitEnergy_in_cgs = UnitMass_in_g * np.power(UnitLength_in_cm,2) / np.power(UnitTime_in_s,2)
+GCONST = GRAVITY_cgs / np.power(UnitLength_in_cm,3) * UnitMass_in_g *  np.power(UnitTime_in_s,2)
+critical_density = 3.0 * .1 * .1 / 8.0 / np.pi / GCONST #.1 is to convert 100/Mpc to 1/kpc, this is in units of h^2
+hubbleparam = .71 #hubble constant
 
-
-#Read snapshot arguments
-script, res, vel, snapnum = argv
+#Should be run with a snap number input
+script, res, vel,  snapnum = argv
 snapnum = int(snapnum) 
-s_vel = vel.replace(".","") 
-s_res = res.replace(".","") 
+s_vel = vel.replace(".","")
+s_res = res.replace(".","")
 
-
-#Read filepaths
-"""
+#File paths
 filename = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_" + res + '_' + vel  + "/output/"
 filename2 = filename +  "DM_FOF" #Used for readsubfHDF5
 filename3 = filename + "snap_" + str(snapnum).zfill(3) #Used for hdf5lib, snapHDF5
-"""
 
-prefix = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_" + res + '_' + vel  + "/output/"
-run = 'DM_FOF'
-path = prefix + run
-base = 'snap-groupordered_'
 
-#Load snapshot
-s = gadget_readsnap(snapnum, snappath=path, snapbase=base, hdf5=True, loadonlytype=[0,1], loadonly=['pos','mass','vel'])
-cat = load_subfind(snapnum, dir=path + '/', hdf5=True)
+#Read header information
+header = snapHDF5.snapshot_header(filename3)
+with hdf5lib.OpenFile(filename3 + ".hdf5") as fs:
+	red = hdf5lib.GetAttr(fs, "Header", "Redshift")
+	atime = hdf5lib.GetAttr(fs, "Header", "Time")
+	boxSize = hdf5lib.GetAttr(fs, "Header", "BoxSize")
+	Omega0 = hdf5lib.GetAttr(fs, "Header", "Omega0")
+	OmegaLambda = hdf5lib.GetAttr(fs, "Header", "OmegaLambda")
 
-#Setup boxsize quantities
-boxSize = s.boxsize * s.time / s.hubbleparam #put boxsize in physical units
-boxSizeVel = s.boxsize * .1 * UnitLength_in_cm/UnitVelocity_in_cm_per_s * np.sqrt(s.omega0/s.time/s.time/s.time + s.omegalambda)
-
+#Read halo catalog
+cat = readsubfHDF5.subfind_catalog(filename2, snapnum)
+r200 = cat.Group_R_Crit200
+haloPos = cat.GroupPos
 
 #indices of haloes >300 dm particles and r200 not 0
-r200 = cat.data['frc2']
-haloPos = cat.data['fpos']
-over300idx, = np.where(np.logical_and(np.greater(cat.data['flty'][:,1],300),np.not_equal(r200,0.)))
+over300idx, = np.where(np.logical_and(np.greater(cat.GroupLenType[:,1],300),np.not_equal(r200,0.)))
 
-#Implementation for all halos
+#Initialize gas/DM indices for all haloes
 allgasindex = np.empty(np.size(r200),dtype=list)
 alldmindex = np.empty(np.size(r200),dtype=list)
 
 #Read in particles
-gasidx, = np.where(s.data['type']==0)
-dmidx, = np.where(s.data['type']==1)
+posgas = snapHDF5.read_block(filename3, "POS ", parttype=0)
+posdm = snapHDF5.read_block(filename3, "POS ", parttype=1)
 
-massgas = s.data['mass'][gasidx]
-massdm = s.data['mass'][dmidx]
-posgas = s.data['pos'][gasidx]
-posdm = s.data['pos'][dmidx]
-velgas = s.data['vel'][gasidx]
-veldm = s.data['vel'][dmidx]
 
-for j in over300idx[:2]:
+for j in over300idx:
 	#Calculate indices of particles within r200
 	indgas, = np.where(dist2(posgas[:,0]-haloPos[j][0],posgas[:,1]-haloPos[j][1],posgas[:,2]-haloPos[j][2],boxSize)  < r200[j]**2)
 	allgasindex[j] = indgas
 	inddm, = np.where(dist2(posdm[:,0]-haloPos[j][0],posdm[:,1]-haloPos[j][1],posdm[:,2]-haloPos[j][2],boxSize)  < r200[j]**2)
 	alldmindex[j] = inddm
+
+#Save data
 np.save("particleindex_" + s_res +'_'+ s_vel + '_'+  str(snapnum) + ".npy", (over300idx, allgasindex[over300idx], alldmindex[over300idx]))
 
 
