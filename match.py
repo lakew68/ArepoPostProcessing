@@ -1,6 +1,8 @@
 """
 Computes the closest DM halo counterpart of Gas primary objects
-Usage
+Usage: python match.py 1.4Mpc 11.8kms 10
+Returns: file with dictionary containing matched information
+Notes: change numsnaps depending on simulation
 """
 
 from __future__ import print_function, division
@@ -9,6 +11,13 @@ import numpy as np
 import hdf5lib 
 import readsubfHDF5
 import snapHDF5
+try:
+   import cPickle as pickle
+except:
+   import pickle
+
+NUMSNAPS = 13 
+
 
 
 def dx_wrap(dx,box):
@@ -48,24 +57,61 @@ script, res, vel,  snapnum = argv
 snapnum = int(snapnum) 
 s_vel = vel.replace(".","")
 s_res = res.replace(".","")
-
 #File paths
 filename = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_" + res + '_' + vel  + "/output/"
 filename2 = filename +  "DM_FOF" #Used for readsubfHDF5
-filename3 = filename + "snap_" + str(snapnum).zfill(3) #Used for hdf5lib, snapHDF5
+filename3 = filename + "snap_" + str(snapnum).zfill(3) #Used for snapHDF5
 
 #Read header information
 header = snapHDF5.snapshot_header(filename3)
-with hdf5lib.OpenFile(filename3 + ".hdf5") as fs:
-	red = hdf5lib.GetAttr(fs, "Header", "Redshift")
-	atime = hdf5lib.GetAttr(fs, "Header", "Time")
-	boxSize = hdf5lib.GetAttr(fs, "Header", "BoxSize")
-	Omega0 = hdf5lib.GetAttr(fs, "Header", "Omega0")
-	OmegaLambda = hdf5lib.GetAttr(fs, "Header", "OmegaLambda")
+red = header.redshift
+atime = header.time
+boxSize = header.boxsize
+Omega0 = header.omega0
+OmegaLambda = header.omegaL
 
 #Read halo catalog
-cat = readsubfHDF5.subfind_catalog(filename2, snapnum)
-r200 = cat.Group_R_Crit200
-haloPos = cat.GroupPos
+catGas = readsubfHDF5.subfind_catalog(filename + "GasOnly_FOF", snapnum)
+catDM = readsubfHDF5.subfind_catalog(filename + "DM_FOF", snapnum)
 
+#Get CM & R200 of all halos w/ >300 DM particles, >100 gas particles
+GroupPos_Gas = catGas.GroupPos[catGas.GroupLenType[:,0]>100]
+GroupPos_DM = catDM.GroupPos[catDM.GroupLenType[:,1]>300]
+R200_DM = catDM.Group_R_Crit200[catDM.GroupLenType[:,1]>300]
+M200_DM = catDM.Group_M_Crit200[catDM.GroupLenType[:,1]>300]
+
+#Filter for nonzero R200
+GroupPos_DM = GroupPos_DM[R200_DM!=0.]
+M200_DM = M200_DM[R200_DM!=0.]
+R200_DM = R200_DM[R200_DM!=0.]
+
+
+#Allocate arrays 
+matchingHalos = np.array([None for groupPos in GroupPos_Gas])
+Rmin = np.array([None for groupPos in GroupPos_Gas])
+R200dm = np.array([None for groupPos in GroupPos_Gas])
+M200dm = np.array([None for groupPos in GroupPos_Gas])
+
+#For each gas object, calculate the distance to all DM objects
+#Get the minimum and record that as the separation 
+
+for igas, groupPos in list(enumerate(GroupPos_Gas)):
+	dists = dist2(GroupPos_DM[:,0]-groupPos[0], GroupPos_DM[:,1]-groupPos[1], GroupPos_DM[:,2]-groupPos[2],boxSize)
+	idx = np.where(dists == np.min(dists))[0][0]
+	matchingHalos[igas] = idx
+	Rmin[igas] = np.sqrt(np.min(dists)) #dists is actually squared
+	M200dm[igas] = M200_DM[idx]
+	R200dm[igas] = R200_DM[idx]
+
+#Print information
+matched = {} #Initialize dict of results
+matched['red'] = red
+matched['matchingHalos'] = matchingHalos
+matched['Rmin'] = Rmin
+matched['R200dm'] = R200dm
+matched['M200dm'] = M200dm
+
+
+with open("match"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat", 'wb') as f:
+    pickle.dump(matched, f, protocol=pickle.HIGHEST_PROTOCOL)
 
