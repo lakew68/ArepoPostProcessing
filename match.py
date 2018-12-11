@@ -1,8 +1,8 @@
 """
 Computes the closest DM halo counterpart of Gas primary objects
 Usage: python match.py 1.4Mpc 11.8kms 10
-Returns: file with dictionary containing matched information
-Notes: change numsnaps depending on simulation
+Returns: pickled file with dictionary containing matched information
+Note: pickled dictionary will contain numpy object arrays. Need to convert to float64
 """
 
 from __future__ import print_function, division
@@ -15,9 +15,6 @@ try:
    import cPickle as pickle
 except:
    import pickle
-
-NUMSNAPS = 13 
-
 
 
 def dx_wrap(dx,box):
@@ -57,6 +54,7 @@ script, res, vel,  snapnum = argv
 snapnum = int(snapnum) 
 s_vel = vel.replace(".","")
 s_res = res.replace(".","")
+
 #File paths
 filename = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_" + res + '_' + vel  + "/output/"
 filename2 = filename +  "DM_FOF" #Used for readsubfHDF5
@@ -111,10 +109,7 @@ matched['Rmin'] = Rmin
 matched['R200dm'] = R200dm
 matched['M200dm'] = M200dm
 
-"""
+
 with open("match"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat", 'wb') as f:
     pickle.dump(matched, f)
-"""
 
-#np.save('match14Mpc_118kms_10.npy',matched)
-np.savez('match14Mpc_118kms_10.npz',red=red, matchingHalos=matchingHalos,Rmin=Rmin,R200dm=R200dm,M200dm=M200dm)
