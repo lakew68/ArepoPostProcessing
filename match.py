@@ -111,7 +111,10 @@ matched['Rmin'] = Rmin
 matched['R200dm'] = R200dm
 matched['M200dm'] = M200dm
 
-
+"""
 with open("match"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat", 'wb') as f:
-    pickle.dump(matched, f, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(matched, f)
+"""
 
+#np.save('match14Mpc_118kms_10.npy',matched)
+np.savez('match14Mpc_118kms_10.npz',red=red, matchingHalos=matchingHalos,Rmin=Rmin,R200dm=R200dm,M200dm=M200dm)
