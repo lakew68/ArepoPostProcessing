@@ -14,7 +14,6 @@ from sys import argv
 import numpy as np
 import readsubfHDF5
 import snapHDF5 
-import hdf5lib
 
 def dx_wrap(dx,box):
 	#wraps to account for period boundary conditions. This mutates the original entry
@@ -57,17 +56,16 @@ s_res = res.replace(".","")
 #File paths
 filename = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_" + res + '_' + vel  + "/output/"
 filename2 = filename +  "DM_FOF" #Used for readsubfHDF5
-filename3 = filename + "snap_" + str(snapnum).zfill(3) #Used for hdf5lib, snapHDF5
+filename3 = filename + "snap_" + str(snapnum).zfill(3) #Used for snapHDF5
 
 
 #Read header information
 header = snapHDF5.snapshot_header(filename3)
-with hdf5lib.OpenFile(filename3 + ".hdf5") as fs:
-	red = hdf5lib.GetAttr(fs, "Header", "Redshift")
-	atime = hdf5lib.GetAttr(fs, "Header", "Time")
-	boxSize = hdf5lib.GetAttr(fs, "Header", "BoxSize")
-	Omega0 = hdf5lib.GetAttr(fs, "Header", "Omega0")
-	OmegaLambda = hdf5lib.GetAttr(fs, "Header", "OmegaLambda")
+red = header.redshift
+atime = header.time
+boxSize = header.boxsize
+Omega0 = header.omega0
+OmegaLambda = header.omegaL
 
 #Read halo catalog
 cat = readsubfHDF5.subfind_catalog(filename2, snapnum)
