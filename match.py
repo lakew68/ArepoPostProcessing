@@ -8,7 +8,6 @@ Note: pickled dictionary will contain numpy object arrays. Need to convert to fl
 from __future__ import print_function, division
 from sys import argv
 import numpy as np
-import hdf5lib 
 import readsubfHDF5
 import snapHDF5
 try:

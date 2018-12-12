@@ -6,7 +6,7 @@ Returns: npy file with array of indices per halo.
 read npy file with 
 
 over300idx, indgas, inddm = np.load("particleindex.npy")
-over300idx.astype(int)
+over300idx = over300idx.astype(int)
 """
 
 from __future__ import print_function, division
