@@ -7,6 +7,8 @@ read npy file with
 
 over300idx, indgas, inddm = np.load("particleindex.npy")
 over300idx = over300idx.astype(int)
+
+12/11/18
 """
 
 from __future__ import print_function, division
