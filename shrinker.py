@@ -70,13 +70,15 @@ atime = header.time
 boxSize = header.boxsize
 Omega0 = header.omega0
 OmegaLambda = header.omegaL
-mDM = header.massarr[1] #all DM particles have same mass
+massDMParticle = header.massarr[1] #all DM particles have same mass
 
 
-#load particle indices
+#load particle indices and catalogs
 pGas= snapHDF5.read_block(filename3,"POS ", parttype=0)
 mGas= snapHDF5.read_block(filename3,"MASS", parttype=0)
 pDM = snapHDF5.read_block(filename3,"POS ", parttype=1)
+cat = readsubfHDF5.subfind_catalog(filename2, snapnum)
+haloPos = cat.GroupPos[halo100_indices]
 
 halo100_indices= np.where(cat.GroupLenType[:,0] >100)[0]		
 startAllGas = []
@@ -85,20 +87,19 @@ for i in halo100_indices:
 	startAllGas += [np.sum(cat.GroupLenType[:i,0])]
 	endAllGas   += [startAllGas[-1] + cat.GroupLenType[i,0]]
 
-CM_112Mpc_Sig0 = cat.GroupPos[halo100_indices]
 
-overRadii_112Mpc_Sig0 = []
+overRadii = []
 radii_112Mpc_Sig0 = []
 rotation_112Mpc_Sig0 = []
 cm_112Mpc_Sig0 = []
 mDM_112Mpc_Sig0 = []
 mGas_112Mpc_Sig0 = []
-gasFrac_112Mpc_Sig0 = []
-DMindices_112Mpc_Sig0 = []
+gasFrac = []
+DMindices = []
 
 
 for idx in halo100_indices:
-	cm = CM_112Mpc_Sig0[idx] 
+	cm = haloPos[idx] 
 	startGas = startAllGas[idx]
 	endGas = endAllGas[idx]	
 	if np.sum(cm == np.array([0., 0., 0.]))==3:
@@ -106,7 +107,7 @@ for idx in halo100_indices:
 		totalGas = np.sum(mGas[startGas: endGas])
 		cm = np.array([np.sum(pGas[startGas: endGas, i]*mGas[startGas: endGas])/totalGas for i in range(3)])
 					
-#Reposition particles to take into account CM
+	#Reposition particles to take into account CM
 	P = pGas[startGas:endGas]
 	M = mGas[startGas:endGas]
 	Precentered = dx_wrap(P - cm,boxSize)
@@ -114,6 +115,10 @@ for idx in halo100_indices:
 	maxAxis = np.max(dists)
 	ratios, evecs = axis(Precentered,maxAxis,axes_out=True,quiet=True)
 	
+	#Shrink ellipsoid by increments of .5% of the maximum axis until density ratio of
+	#lengths of axes of shrunken ellipse to the original ellipse is greater than the ratio of
+	#the number of gas cells enclosed in the shrunken ellipose to the original ellipse	
+	#or until 20% of the total number of gas cells are removed
 	if ratios[0] > 0. and ratios[1] > 0.: #accounts for erros in fit
 		evecs = np.array(evecs)
 		Precentered = np.array([np.dot(pp,evecs.T) for pp in Precentered])
@@ -129,7 +134,7 @@ for idx in halo100_indices:
 		over =  np.sum(M[inEll])/(4.*np.pi/3.*ratios[0]*ratios[1]*tempAxis**3.)/rhoCritGas_112Mpc_Sig0[snapnum-10]
 
 		mGas_112Mpc_Sig0 += [np.sum(M[inEll])]
-		overRadii_112Mpc_Sig0 += [over]
+		overRadii += [over]
 		radii = np.array([tempAxis*ratios[0], tempAxis*ratios[1], tempAxis])
 		rotation = np.array(evecs)
 		radii_112Mpc_Sig0 += [list(radii)]	
@@ -140,32 +145,32 @@ for idx in halo100_indices:
 		#Calculate DM mass
 		tempPosDM = dx_wrap(pDM-cm,boxSize)			
 		nearidx, = np.where(dist2(pDM[:,0]-cm[0],pDM[:,1]-cm[1],pDM[:,2]-cm[2],boxSize)<=tempAxis**2)
-		DMindices_112Mpc_Sig0 += [nearidx] 
+		DMindices += [nearidx] 
 		tempPosDM = tempPosDM[nearidx]
 		tempPosDM = np.array([np.dot(pp,evecs.T) for pp in tempPosDM])
 		DMinEll = tempPosDM[:,0]**2/ratios[0]**2 + tempPosDM[:,1]**2/ratios[1]**2 + tempPosDM[:,2]**2 <= tempAxis**2 
-		mDM_112Mpc_Sig0 += [1.*np.sum(DMinEll)*mDM]	
-		gasFrac_112Mpc_Sig0 += [np.sum(M[inEll])/(np.sum(M[inEll]) + 1.*np.sum(DMinEll)*mDM)]	
+		mDM_112Mpc_Sig0 += [1.*np.sum(DMinEll)*massDMParticle]	
+		gasFrac += [np.sum(M[inEll])/(np.sum(M[inEll]) + 1.*np.sum(DMinEll)*massDMParticle)]	
 	else:
-		overRadii_112Mpc_Sig0 += [-1.]
+		overRadii += [-1.]
 		radii_112Mpc_Sig0 += [[-1.,-1.,-1.]]
 		rotation_112Mpc_Sig0 +=[[[-1.,-1.,-1.],[-1.,-1.,-1.],[-1.,-1.,-1.]]] 
 		cm_112Mpc_Sig0 += [[-1.,-1.,-1.]]
 		mDM_112Mpc_Sig0 += [-1.]
 		mGas_112Mpc_Sig0 += [-1.]
-		gasFrac_112Mpc_Sig0 += [-1.]
-		DMindices_112Mpc_Sig0 += [[-1.]]
+		gasFrac += [-1.]
+		DMindices += [[-1.]]
 
 #Print information
 shrunken = {} #Initialize dict of results
 shrunken['radii'] = [list(r) for r in radii_112Mpc_Sig0]
 shrunken['rotation'] = [[list(r[0]), list(r[1]), list(r[2])] for r in rotation_112Mpc_Sig0]
 shrunken['cm'] = [list(c) for c in cm_112Mpc_Sig0]
-shrunken['overRadii'] = list(overRadii_112Mpc_Sig0)
+shrunken['overRadii'] = list(overRadii)
 shrunken['mDM'] = list(mDM_112Mpc_Sig0)
 shrunken['mGas'] = list(mGas_112Mpc_Sig0)
-shrunken['gasFrac'] = list(gasFrac_112Mpc_Sig0)
-shrunken['DMindices'] = [list(d) for d in DMindices_112Mpc_Sig0]
+shrunken['gasFrac'] = list(gasFrac)
+shrunken['DMindices'] = [list(d) for d in DMindices]
 
 with open("shrinker"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat",'wb') as f:
 	pickle.dump(matched, f)
