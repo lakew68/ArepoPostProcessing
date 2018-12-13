@@ -104,7 +104,7 @@ gasFrac = []
 DMindices = []
 gasindices = []
 
-for idx in halo100_indices:
+for idx in halo100_indices[:3]:
 	cm = haloPos[idx] 
 	startGas = startAllGas[idx]
 	endGas = endAllGas[idx]	
