@@ -182,5 +182,5 @@ shrunken['DMindices'] = DMindices #DM indices in the ellipsoid
 shrunken['gasindices'] = gasindices #gas indices in the ellipsoid
 
 with open("shrinker"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat",'wb') as f:
-	pickle.dump(matched, f)
+	pickle.dump(shrunken, f)
 
