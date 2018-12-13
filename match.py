@@ -49,6 +49,7 @@ UnitEnergy_in_cgs = UnitMass_in_g * np.power(UnitLength_in_cm,2) / np.power(Unit
 GCONST = GRAVITY_cgs / np.power(UnitLength_in_cm,3) * UnitMass_in_g *  np.power(UnitTime_in_s,2)
 critical_density = 3.0 * .1 * .1 / 8.0 / np.pi / GCONST #.1 is to convert 100/Mpc to 1/kpc, this is in units of h^2
 hubbleparam = .71 #hubble constant
+baryonfraction = .044 / .27 #OmegaB/Omega0
 
 #Should be run with a snap number input
 script, res, vel,  snapnum = argv
@@ -68,6 +69,12 @@ atime = header.time
 boxSize = header.boxsize
 Omega0 = header.omega0
 OmegaLambda = header.omegaL
+massDMParticle = header.massarr[1] #all DM particles have same mass
+
+#redshift evolution of critical_density
+critical_density *= Omega0 + atime**3 * OmegaLambda
+critical_density_gas = critcal_density * baryonfraction
+
 
 #Read halo catalog
 catGas = readsubfHDF5.subfind_catalog(filename + "GasOnly_FOF", snapnum)
