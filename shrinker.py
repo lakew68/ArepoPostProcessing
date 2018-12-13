@@ -51,6 +51,8 @@ UnitEnergy_in_cgs = UnitMass_in_g * np.power(UnitLength_in_cm,2) / np.power(Unit
 GCONST = GRAVITY_cgs / np.power(UnitLength_in_cm,3) * UnitMass_in_g *  np.power(UnitTime_in_s,2)
 critical_density = 3.0 * .1 * .1 / 8.0 / np.pi / GCONST #.1 is to convert 100/Mpc to 1/kpc, this is in units of h^2
 hubbleparam = .71 #hubble constant
+baryonfraction = .044 / .27 #OmegaB/Omega0
+
 
 #Should be run with a snap number input
 script, res, vel,  snapnum = argv
@@ -72,6 +74,9 @@ Omega0 = header.omega0
 OmegaLambda = header.omegaL
 massDMParticle = header.massarr[1] #all DM particles have same mass
 
+#redshift evolution of critical_density
+critical_density *= Omega0 + atime**3 * OmegaLambda
+critical_density_gas = critcal_density * baryonfraction
 
 #load particle indices and catalogs
 pGas= snapHDF5.read_block(filename3,"POS ", parttype=0)
@@ -131,7 +136,7 @@ for idx in halo100_indices:
 			if tempAxis/maxAxis > 1.*numGasTemp/numGasOrig or 1.*numGasTemp/numGasOrig <= .8:
 				break
 			tempAxis-= .005*maxAxis
-		over =  np.sum(M[inEll])/(4.*np.pi/3.*ratios[0]*ratios[1]*tempAxis**3.)/rhoCritGas_112Mpc_Sig0[snapnum-10]
+		over =  np.sum(M[inEll])/(4.*np.pi/3.*ratios[0]*ratios[1]*tempAxis**3.)/critical_density_gas
 
 		mGas_112Mpc_Sig0 += [np.sum(M[inEll])]
 		overRadii += [over]
