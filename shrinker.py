@@ -83,7 +83,6 @@ pGas= snapHDF5.read_block(filename3,"POS ", parttype=0)
 mGas= snapHDF5.read_block(filename3,"MASS", parttype=0)
 pDM = snapHDF5.read_block(filename3,"POS ", parttype=1)
 cat = readsubfHDF5.subfind_catalog(filename2, snapnum)
-haloPos = cat.GroupPos[halo100_indices]
 
 halo100_indices= np.where(cat.GroupLenType[:,0] >100)[0]		
 startAllGas = []
@@ -91,6 +90,8 @@ endAllGas   = []
 for i in halo100_indices:
 	startAllGas += [np.sum(cat.GroupLenType[:i,0])]
 	endAllGas   += [startAllGas[-1] + cat.GroupLenType[i,0]]
+
+haloPos = cat.GroupPos[halo100_indices]
 
 
 overRadii = []
