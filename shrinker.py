@@ -170,15 +170,15 @@ for idx in halo100_indices:
 
 #Print information
 shrunken = {} #Initialize dict of results
-shrunken['radii'] = radii_ellipsoid
-shrunken['rotation'] = rotation_ellipsoid
-shrunken['cm'] = cm_ellipsoid
-shrunken['overRadii'] = overRadii
-shrunken['mDM'] = mDM_ellipsoid
-shrunken['mGas'] = mGas_ellipsoid
-shrunken['gasFrac'] = gasFrac
-shrunken['DMindices'] = DMindices
-shrunken['gasindices'] = gasindices
+shrunken['radii'] = radii_ellipsoid   #each ellipsoid axis value from min to max
+shrunken['rotation'] = rotation_ellipsoid #rotation matrix to get into principal frame
+shrunken['cm'] = cm_ellipsoid #center of mass
+shrunken['overRadii'] = overRadii #density / rhocrit
+shrunken['mDM'] = mDM_ellipsoid #DM mass in the ellipsoid
+shrunken['mGas'] = mGas_ellipsoid #gas mass in the ellipsoid
+shrunken['gasFrac'] = gasFrac #gas fraction of the ellipsoid
+shrunken['DMindices'] = DMindices #DM indices in the ellipsoid
+shrunken['gasindices'] = gasindices #gas indices in the ellipsoid
 
 with open("shrinker"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat",'wb') as f:
 	pickle.dump(matched, f)
