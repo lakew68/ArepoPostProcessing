@@ -76,7 +76,7 @@ massDMParticle = header.massarr[1] #all DM particles have same mass
 
 #redshift evolution of critical_density
 critical_density *= Omega0 + atime**3 * OmegaLambda
-critical_density_gas = critcal_density * baryonfraction
+critical_density_gas = critical_density * baryonfraction
 
 #load particle indices and catalogs
 pGas= snapHDF5.read_block(filename3,"POS ", parttype=0)
