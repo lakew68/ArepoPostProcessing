@@ -101,7 +101,7 @@ mDM_112Mpc_Sig0 = []
 mGas_112Mpc_Sig0 = []
 gasFrac = []
 DMindices = []
-
+gasindices = []
 
 for idx in halo100_indices:
 	cm = haloPos[idx] 
@@ -137,7 +137,7 @@ for idx in halo100_indices:
 				break
 			tempAxis-= .005*maxAxis
 		over =  np.sum(M[inEll])/(4.*np.pi/3.*ratios[0]*ratios[1]*tempAxis**3.)/critical_density_gas
-
+		
 		mGas_112Mpc_Sig0 += [np.sum(M[inEll])]
 		overRadii += [over]
 		radii = np.array([tempAxis*ratios[0], tempAxis*ratios[1], tempAxis])
@@ -145,7 +145,7 @@ for idx in halo100_indices:
 		radii_112Mpc_Sig0 += [list(radii)]	
 		rotation_112Mpc_Sig0 += [[list(r) for r in rotation]]
 		cm_112Mpc_Sig0 += [list(cm)]	
-			
+		gasindices += [list(inEll)]
 		
 		#Calculate DM mass
 		tempPosDM = dx_wrap(pDM-cm,boxSize)			
@@ -165,17 +165,19 @@ for idx in halo100_indices:
 		mGas_112Mpc_Sig0 += [-1.]
 		gasFrac += [-1.]
 		DMindices += [[-1.]]
+		gasindices += [[-1.]]
 
 #Print information
 shrunken = {} #Initialize dict of results
-shrunken['radii'] = [list(r) for r in radii_112Mpc_Sig0]
-shrunken['rotation'] = [[list(r[0]), list(r[1]), list(r[2])] for r in rotation_112Mpc_Sig0]
-shrunken['cm'] = [list(c) for c in cm_112Mpc_Sig0]
-shrunken['overRadii'] = list(overRadii)
-shrunken['mDM'] = list(mDM_112Mpc_Sig0)
-shrunken['mGas'] = list(mGas_112Mpc_Sig0)
-shrunken['gasFrac'] = list(gasFrac)
-shrunken['DMindices'] = [list(d) for d in DMindices]
+shrunken['radii'] = radii_112Mpc_Sig0
+shrunken['rotation'] = rotation_112Mpc_Sig0
+shrunken['cm'] = cm_112Mpc_Sig0
+shrunken['overRadii'] = overRadii
+shrunken['mDM'] = mDM_112Mpc_Sig0
+shrunken['mGas'] = mGas_112Mpc_Sig0
+shrunken['gasFrac'] = gasFrac
+shrunken['DMindices'] = DMindices
+shrunken['gasindices'] = gasindices
 
 with open("shrinker"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat",'wb') as f:
 	pickle.dump(matched, f)
