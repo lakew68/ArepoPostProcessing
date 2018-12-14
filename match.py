@@ -2,7 +2,6 @@
 Computes the closest DM halo counterpart of Gas primary objects
 Usage: python match.py 1.4Mpc 11.8kms 10
 Returns: pickled file with dictionary containing matched information
-Note: pickled dictionary will contain numpy object arrays. Need to convert to float64
 
 12/11/18
 """
