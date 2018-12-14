@@ -73,7 +73,7 @@ massDMParticle = header.massarr[1] #all DM particles have same mass
 
 #redshift evolution of critical_density
 critical_density *= Omega0 + atime**3 * OmegaLambda
-critical_density_gas = critcal_density * baryonfraction
+critical_density_gas = critical_density * baryonfraction
 
 
 #Read halo catalog
@@ -93,29 +93,29 @@ R200_DM = R200_DM[R200_DM!=0.]
 
 
 #Allocate arrays 
-matchingHalos = np.array([None for groupPos in GroupPos_Gas])
-Rmin = np.array([None for groupPos in GroupPos_Gas])
-R200dm = np.array([None for groupPos in GroupPos_Gas])
-M200dm = np.array([None for groupPos in GroupPos_Gas])
-
+matchingHalos = [] 
+Rmin = []
+R200dm = [] 
+M200dm = []
+ 
 #For each gas object, calculate the distance to all DM objects
 #Get the minimum and record that as the separation 
 
 for igas, groupPos in list(enumerate(GroupPos_Gas)):
 	dists = dist2(GroupPos_DM[:,0]-groupPos[0], GroupPos_DM[:,1]-groupPos[1], GroupPos_DM[:,2]-groupPos[2],boxSize)
 	idx = np.where(dists == np.min(dists))[0][0]
-	matchingHalos[igas] = idx
-	Rmin[igas] = np.sqrt(np.min(dists)) #dists is actually squared
-	M200dm[igas] = M200_DM[idx]
-	R200dm[igas] = R200_DM[idx]
+	matchingHalos += [idx]
+	Rmin += [np.sqrt(np.min(dists))] #dists is actually squared
+	M200dm += [M200_DM[idx]]
+	R200dm += [R200_DM[idx]]
 
 #Print information
 matched = {} #Initialize dict of results
-matched['red'] = red
-matched['matchingHalos'] = matchingHalos
-matched['Rmin'] = Rmin
-matched['R200dm'] = R200dm
-matched['M200dm'] = M200dm
+matched['red'] = np.array(red)
+matched['matchingHalos'] = np.array(matchingHalos)
+matched['Rmin'] = np.array(Rmin)
+matched['R200dm'] = np.array(R200dm)
+matched['M200dm'] = np.array(M200dm)
 
 
 with open("match"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat", 'wb') as f:
