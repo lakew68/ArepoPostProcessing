@@ -2,7 +2,6 @@
 Program to fit ellipsoid to FOF object, then shrinks the ellipsoid.
 Usage: python shrinker.py 1.4Mpc 11.8kms 10
 Returns: pickled file with dictionary containing ellipsoid information
-Note: pickled dictionary will contain numpy object arrays. Need to convert to float64
 
 12/11/18
 """
@@ -171,15 +170,15 @@ for idx in halo100_indices:
 
 #Print information
 shrunken = {} #Initialize dict of results
-shrunken['radii'] = radii_ellipsoid   #each ellipsoid axis value from min to max
-shrunken['rotation'] = rotation_ellipsoid #rotation matrix to get into principal frame
-shrunken['cm'] = cm_ellipsoid #center of mass
-shrunken['overRadii'] = overRadii #density / rhocrit
-shrunken['mDM'] = mDM_ellipsoid #DM mass in the ellipsoid
-shrunken['mGas'] = mGas_ellipsoid #gas mass in the ellipsoid
-shrunken['gasFrac'] = gasFrac #gas fraction of the ellipsoid
-shrunken['DMindices'] = DMindices #DM indices in the ellipsoid
-shrunken['gasindices'] = gasindices #gas indices in the ellipsoid
+shrunken['radii'] = np.array(radii_ellipsoid)   #each ellipsoid axis value from min to max
+shrunken['rotation'] = np.array(rotation_ellipsoid) #rotation matrix to get into principal frame
+shrunken['cm'] = np.array(cm_ellipsoid) #center of mass
+shrunken['overRadii'] = np.array(overRadii) #density / rhocrit
+shrunken['mDM'] = np.array(mDM_ellipsoid) #DM mass in the ellipsoid
+shrunken['mGas'] = np.array(mGas_ellipsoid) #gas mass in the ellipsoid
+shrunken['gasFrac'] = np.array(gasFrac) #gas fraction of the ellipsoid
+shrunken['DMindices'] = np.array(DMindices) #DM indices in the ellipsoid
+shrunken['gasindices'] = np.array(gasindices) #gas indices in the ellipsoid
 
 with open("shrinker"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat",'wb') as f:
 	pickle.dump(shrunken, f)
