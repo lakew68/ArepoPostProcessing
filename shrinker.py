@@ -165,8 +165,8 @@ for idx in halo100_indices:
 		mDM_ellipsoid += [-1.]
 		mGas_ellipsoid += [-1.]
 		gasFrac += [-1.]
-		DMindices += [[-1.]]
-		gasindices += [[-1.]]
+		DMindices += [[-1]]
+		gasindices += [[-1]]
 
 #Print information
 shrunken = {} #Initialize dict of results
