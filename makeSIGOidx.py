@@ -15,9 +15,6 @@ try:
 except:
    import pickle
 
-from match14Mpc_118kms import *
-from yeoushrinker14Mpc_118kms_10 import *
-
 
 def dx_wrap(dx,box):
 	#wraps to account for period boundary conditions. This mutates the original entry
@@ -92,15 +89,14 @@ for i in halo100_indices:
 
 
 SIGOidx = []
-"""
+
 #Load shrinker and match data
 with open('shrinker'+s_res+'_'+s_vel+'_'+str(snapnum)+'.dat','rb') as f:
 	shrunken = pickle.load(f)
 with open('match'+s_res+'_'+s_vel+'_'+str(snapnum)+'.dat','rb') as f:
 	matched = pickle.load(f)
-"""
-for i in halo100_indices:
-	"""	
+
+for i in halo100_indices:		
 	cm = shrunken['cm'][i]
 	rotation = shrunken['rotation'][i]
 	radii = shrunken['radii'][i]
@@ -108,14 +104,6 @@ for i in halo100_indices:
 	DMinEll = shrunken['DMindices'][i]
 	Rclosest = matched['Rmin'][i]
 	R200dm = matched['R200dm'][i]
-	"""
-	exec("cm = cm_%s_%s_%d[0][i]"%(s_res,s_vel,snapnum))
-	exec("rotation = rotation_%s_%s_%d[0][i]"%(s_res,s_vel,snapnum))
-	exec("radii = radii_%s_%s_%d[0][i]"%(s_res,s_vel,snapnum))
-	exec("mDM=mDM_%s_%s_%d[0][i]"%(s_res,s_vel,snapnum))
-	exec("DMinEll=DMindices_%s_%s_%d[0][i]"%(s_res,s_vel,snapnum))	
-	exec("Rclosest=Rmin_%s_%s[snapnum-10][i]"%(s_res,s_vel))
-	exec("R200dm=R200dm_%s_%s[snapnum-10][i]"%(s_res,s_vel))
 
 	if radii[0] > 0.: #In case of shrinker errors
 		
