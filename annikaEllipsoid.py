@@ -78,7 +78,6 @@ def axis(arr_in, rad, shell=False, axes_out=False, fix_volume=True, quiet=False)
 			axrat=calc_inertia(arr_in[locs], axtemp)
 			if abs(np.imag(axrat[0])).max() > 0.:
 				#raise ValueError('Error: eigenvalues are not all real!')
-				#Annika edit so that this doesn't totally crap out if I have to loop over it.
 				print 'Error: eigenvalues are not all real!'
 				if axes_out: return [-1., -1.], [None, None, None];
 				else: return [-1., -1.];
