@@ -209,7 +209,7 @@ for i in halo100_indices:
 		lamb_jeans = np.sqrt(np.pi * np.mean(cs)**2. / GRAVITY_cgs / SIGOrho)
 
 		m_BE = 1.18 / np.pi**(1.5) * SIGOrho * lamb_jeans**3.
-		SIGOmass = M[inEll].sum() * 1.e10 / s.hubbleparam
+		SIGOmass = M[inEll].sum() * 1.e10 / hubbleparam
 		gasmass[i] = np.sum(M[inEll])
 		gasfrac[i] = np.sum(M[inEll])/(np.sum(M[inEll])+mDM)
 		#Make stellar density to  long axis
@@ -259,7 +259,7 @@ rhoGTrhocritANDSIGO, = np.where(rhoSIGO > rhocritSIGO)
 
 
 #DMG
-
+'''
 prefix = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_"
 run = "1.4Mpc_11.8kms"
 
@@ -319,13 +319,6 @@ for i,j in enumerate(goodidx):
 		#s.data['mass'] = s.mass[igas]
 		#convert internal energy to temperature 
 		u = 1.0e10 * s.data['u'][indgas[i]]#it's a velocity squared to be converted in cgs
-		'''
-		ne = s.data['ne'][:]
-		metallicity  = 0 
-		XH = s.data['gmet'][:, 0]
-		yhelium = (1 - XH - metallicity) / (4. * XH);
-		mu = (1 + 4 * yhelium) / (1 + yhelium + ne)
-		'''
 		mu = 1.22 #Primordial composition 
 		temp = GAMMA_MINUS1 /  BOLTZMANN * u * PROTONMASS * mu	
 			
@@ -348,13 +341,13 @@ for i,j in enumerate(goodidx):
 		#rhocrit = np.pi * np.mean(cs)**2. * np.mean(mach)**4. / GRAVITY_cgs / (radii[0]*s.time/s.hubbleparam*KPC)**2.
 
 		#print "rho_crit: ", rhocrit, "g/cm^3"
-		'''	
+		"""	
 		SIGOrho = np.sum(M[inEll]) /  (4./3. * np.pi * radii[0]*radii[1]*radii[2]) / (s.time**3 / s.hubbleparam**2) * 1.e10 * MSUN / KPC **3.
 		SIGOrhocell = np.mean(R[inEll]) * 1.0e10  *MSUN/ KPC**3.0 / (s.time**3. / s.hubbleparam**2)
 		
 		print "SIGO rho: ", SIGOrho, "g/cm^3"
 		print "SIGO rho cell: ",SIGOrhocell, "g/cm^3"
-		'''	
+		"""	
 		rhoDMG[i] = np.sum(s.mass[indgas[i]]) / (4./3. * np.pi * cat.Group_R_Crit200[j])/(s.time**3 / s.hubbleparam**2) * 1.e10 * MSUN / KPC **3.
 		#print "DMG rho: ", DMGrho, "g/cm^3"
 		#Calculate jeans length/sonic length
@@ -481,4 +474,4 @@ yticks = ax.yaxis.get_major_ticks()
 yticks[0].label1.set_visible(False)
 #plt.savefig('./plots/magnitudeRhoCrit_'+s_vel+'randomrmaxrmin.pdf')
 plt.show()
-
+'''
