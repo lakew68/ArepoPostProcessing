@@ -256,20 +256,6 @@ rhoGTrhocritANDSIGO, = np.where(rhoSIGO > rhocritSIGO)
 
 
 #DMG
-'''
-prefix = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_"
-run = "1.4Mpc_11.8kms"
-
-name = 'clump'
-cat = readsubfHDF5.subfind_catalog("/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_1.4Mpc_11.8kms/output/DM_FOF",snapnum)
-path = prefix+run+'/output/'
-s = gadget_readsnap( snapnum, snappath=path, snapbase='snap_',hdf5=True, loadonly=['pos','vel', 'mass', 'vol', 'rho', 'u'], loadonlytype=[0], forcesingleprec=False )
-cms = cat.GroupPos
-cms = cms / (s.hubbleparam / s.time)
-cvel = cat.GroupVel
-cvel = cvel / s.time
-'''
-
 
 #File paths
 filename = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_" + res + '_' + vel  + "/output/"
