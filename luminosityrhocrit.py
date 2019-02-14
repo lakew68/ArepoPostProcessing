@@ -305,7 +305,7 @@ gasfrac = np.zeros(catDM.Group_R_Crit200.size)
 
 for i,j in enumerate(over300idx):
 	if indgas[i].size > 100: #Only care about DM/G with >100 gas cells
-		tempposgas = dx_wrap(pGas[indgas[i]] - cms[j] * (s.hubbleparam / s.time),boxSize)
+		tempposgas = dx_wrap(pGas[indgas[i]] - cms[j] * (hubbleparam / atime),boxSize)
 		RHO = rGas[indgas[i]]	
 		gasfrac[i] = mGas[indgas[i]].sum()/(mGas[indgas[i]].sum()+mDM[inddm[i]].sum())  
 		gasmass[i] = mGas[indgas[i]].sum()
