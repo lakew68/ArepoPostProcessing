@@ -126,7 +126,6 @@ cvel = catGas.GroupVel / atime
 #some radii are errors and  negative, will have a value of 1 to be excluded
 negradii = np.zeros(np.size(halo100_indices)) 
 rmax = np.zeros(np.size(halo100_indices))
-totrho = np.zeros(np.size(halo100_indices))
 gasfrac = np.zeros(np.size(halo100_indices))
 gasmass = np.zeros(np.size(halo100_indices))
 rmin =  np.zeros(halo100_indices.size)
@@ -229,12 +228,10 @@ if s_vel == '118kms':
 
 rmax = rmax[nonzero]
 rmin = rmin[nonzero]
-totrho = totrho[nonzero]
 gasfrac = gasfrac[nonzero]
 gasmass = gasmass[nonzero]
 rmax *= atime / hubbleparam #convert to kpc
 rmin *= atime / hubbleparam
-totrho *= 10.**10/(atime**3./hubbleparam**2) #convert to Msun/kpc^3
 gasmass *= 10.**10/hubbleparam
 
 
@@ -271,113 +268,96 @@ cms = cat.GroupPos
 cms = cms / (s.hubbleparam / s.time)
 cvel = cat.GroupVel
 cvel = cvel / s.time
+'''
 
+
+#File paths
 filename = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_" + res + '_' + vel  + "/output/"
 filename2 = filename +  "DM_FOF" #Used for readsubfHDF5
-########## CHANGED FILENAME3 TO GROUPORDERED IN GAS ONLY
 filename3 = filename + "snap_" + str(snapnum).zfill(3) #Used for hdf5lib, snapHDF5
-pGas= snapHDF5.read_block(filename3,"POS ", parttype=0)
-mGas= snapHDF5.read_block(filename3,"MASS", parttype=0)
-rGas = snapHDF5.read_block(filename3, "RHO ",parttype=0)
-pDM= snapHDF5.read_block(filename3,"POS ",parttype=1)
-mDM= snapHDF5.read_block(filename3,"MASS", parttype=1)
+#Read header information
+header = snapHDF5.snapshot_header(filename3)
+red = header.redshift
+atime = header.time
+boxSize = header.boxsize
+Omega0 = header.omega0
+OmegaLambda = header.omegaL
+massDMParticle = header.massarr[1] #all DM particles have same mass
 
-#boxSize hubble flow correction for halo CM velocity subtraction
-boxSizeVel = boxSize * .1 * UnitLength_in_cm/UnitVelocity_in_cm_per_s * np.sqrt(s.omega0/s.time/s.time/s.time + s.omegalambda)
 
+#redshift evolution of critical_density
+critical_density *= Omega0 + atime**3 * OmegaLambda
+critical_density_gas = critical_density * baryonfraction
+
+#load particle indices and catalogs
+pGas = snapHDF5.read_block(filename3,"POS ",parttype=0)
+mGas = snapHDF5.read_block(filename3,"MASS",parttype=0)
+vGas = snapHDF5.read_block(filename3,"VEL ",parttype=0)
+rGas = snapHDF5.read_block(filename3,"RHO ",parttype=0)
+uGas = snapHDF5.read_block(filename3,"U   ",parttype=0)
+pDM = snapHDF5.read_block(filename3,"POS ",parttype=1)
+mDM = snapHDF5.read_block(filename3,"MASS", parttype=1)
+catDM = readsubfHDF5.subfind_catalog(filename2, snapnum)
+
+cms = catDM.GroupPos / hubbleparam / atime
+cvel = catDM.GroupVel / atime
+
+#load DM/G indices
+over300idx, indgas, inddm = np.load('particleindex_'+res+'_'+vel+'_'+str(snapnum)+'.npy')
+over300idx = over300idx.astype(int)
+
+
+#initialize arrays
 rhocritDMG = np.zeros(cat.Group_R_Crit200.size)
 rhoDMG = np.zeros(cat.Group_R_Crit200.size)
 densradius= np.zeros(cat.Group_R_Crit200.size)
 maxrho = np.zeros(cat.Group_R_Crit200.size)
-totrho = np.zeros(cat.Group_R_Crit200.size)
 gasmass = np.zeros(cat.Group_R_Crit200.size)
 gasfrac = np.zeros(cat.Group_R_Crit200.size)
 
 
 
-#load particle indices
-
-goodidx, indgas, inddm = np.load('particleindex_1.4Mpc_11.8kms_10.npy')
-goodidx = goodidx.astype(int)
-
-for i,j in enumerate(goodidx):
-	if indgas[i].size > 100: #good idx doesn't know about how many gas particles there are
+for i,j in enumerate(over300idx):
+	if indgas[i].size > 100: #Only care about DM/G with >100 gas cells
 		tempposgas = dx_wrap(pGas[indgas[i]] - cms[j] * (s.hubbleparam / s.time),boxSize)
 		RHO = rGas[indgas[i]]	
-		totrho[i] = np.mean(RHO) 
 		gasfrac[i] = mGas[indgas[i]].sum()/(mGas[indgas[i]].sum()+mDM[inddm[i]].sum())  
 		gasmass[i] = mGas[indgas[i]].sum()
-		densradius[i] = cat.Group_R_Crit200[j]	
+		densradius[i] = catDM.Group_R_Crit200[j]	
 
-		#over100global += 1
-		#s.data['pos'] = s.pos[igas]
-		#s.data['type'] = s.type[igas]
-		#s.data['rho'] =  s.rho[igas].astype('float64') * 1.0e10 * MSUN / KPC**2.0 / mu / PROTONMASS * boxsize / res #put in cm^-2
-		#s.data['rho'] =  s.rho[igas].astype('float64') * 1.0e10  *MSUN/ KPC**2.0 * boxsize / res #put in g/cm^2
-
-		#s.data['vol'] = s.vol[igas]
-		#s.data['mass'] = s.mass[igas]
 		#convert internal energy to temperature 
-		u = 1.0e10 * s.data['u'][indgas[i]]#it's a velocity squared to be converted in cgs
+		u = 1.0e10 * uGas[indgas[i]] #it's a velocity squared to be converted in cgs
 		mu = 1.22 #Primordial composition 
 		temp = GAMMA_MINUS1 /  BOLTZMANN * u * PROTONMASS * mu	
 			
 		#turn into sound speed
 		cs = np.sqrt(GAMMA * BOLTZMANN * temp / mu / PROTONMASS)
-		tempvel = dx_wrap(s.vel[indgas[i]] - cvel[j],boxSizeVel) * 1.0e5 #convert to cgs
+		tempvel = (vGas[indgas[i]] * np.sqrt(atime) - cvel[j]) * 1.0e5 #convert to cgs
 		#Turn first v_x into |v|
 		velmag = np.linalg.norm(tempvel,axis=1)
 		#turn into mach number
 		mach = velmag / cs	
-
-
-		#print "Mach number: ", (np.mean(mach))
-		#using rmax
-		#L_cloud = (2.*radii[2]*s.time/s.hubbleparam*KPC) #in cm
-		L_cloud = 2.*(cat.Group_R_Crit200[j]*s.time/s.hubbleparam*KPC) 
+		L_cloud = 2.*(catDM.Group_R_Crit200[j]*atime/hubbleparam*KPC) 
 			
 		rhocritDMG[i] = np.pi * np.mean(cs)**2. * np.mean(mach)**4. / GRAVITY_cgs / L_cloud**2.
-		#using rmin	
-		#rhocrit = np.pi * np.mean(cs)**2. * np.mean(mach)**4. / GRAVITY_cgs / (radii[0]*s.time/s.hubbleparam*KPC)**2.
+		rhoDMG[i] = np.sum(mGas[indgas[i]]) / (4./3. * np.pi * cat.Group_R_Crit200[j])/(time**3 / hubbleparam**2) * 1.e10 * MSUN / KPC **3.
 
-		#print "rho_crit: ", rhocrit, "g/cm^3"
-		"""	
-		SIGOrho = np.sum(M[inEll]) /  (4./3. * np.pi * radii[0]*radii[1]*radii[2]) / (s.time**3 / s.hubbleparam**2) * 1.e10 * MSUN / KPC **3.
-		SIGOrhocell = np.mean(R[inEll]) * 1.0e10  *MSUN/ KPC**3.0 / (s.time**3. / s.hubbleparam**2)
-		
-		print "SIGO rho: ", SIGOrho, "g/cm^3"
-		print "SIGO rho cell: ",SIGOrhocell, "g/cm^3"
-		"""	
-		rhoDMG[i] = np.sum(s.mass[indgas[i]]) / (4./3. * np.pi * cat.Group_R_Crit200[j])/(s.time**3 / s.hubbleparam**2) * 1.e10 * MSUN / KPC **3.
-		#print "DMG rho: ", DMGrho, "g/cm^3"
-		#Calculate jeans length/sonic length
+densradius *= atime / hubbleparam
+gasmass *= 10.**10/hubbleparam
 
-		
-		#lamb_sonic = L_cloud / np.mean(mach)**2.
-		#lamb_jeans = np.sqrt(np.pi * np.mean(cs)**2. / GRAVITY_cgs / DMGrho)
-densradius *= s.time / .71
-totrho *= 10.**10/(s.time/.71**2)
-gasmass *= 10.**10/.71
-
-densradius = densradius[goodidx]
-gasfrac = gasfrac[goodidx]
-totrho = totrho[goodidx]
-gasmass = gasmass[goodidx]
-#maxrho = maxrho[densradius!=0.]
-rhoDMG = rhoDMG[goodidx]
-rhocritDMG = rhocritDMG[goodidx]
+densradius = densradius[over300idx]
+gasfrac = gasfrac[over300idx]
+gasmass = gasmass[over300idx]
+rhoDMG = rhoDMG[over300idx]
+rhocritDMG = rhocritDMG[over300idx]
 
 
 
 gasmass = gasmass[densradius!=0.]
 gasfrac = gasfrac[densradius!=0.]
-totrho = totrho[densradius!=0.]
 rhoDMG = rhoDMG[densradius!=0.]
 rhocritDMG = rhocritDMG[densradius!=0.]
 densradius = densradius[densradius!=0.]
-
-#stellardens = f_star * totrho
-#stellarmass = 4./3. * np.pi * densradius**3. * stellardens
 
 stellarmass = f_star * gasmass
 Q_Hmassive = 10.**(Q_H[IMF][Z]) * stellarmass #unnormalize from one stellar mass
@@ -386,92 +366,8 @@ Q_Hmassive = 10.**(Q_H[IMF][Z]) * stellarmass #unnormalize from one stellar mass
 luminosity = c_LA[T] * (1.-f_esc) * Q_Hmassive
 
 rhoGTrhocritindex, = np.where(rhoDMG > rhocritDMG)
-#rhoGTrhocritANDgood = np.intersect1d(rhoGTrhocritindex, goodidx)
-
-#print luminosity[rhoGTrhocritindex] 
-#print rhoGTrhocritindex.size
-#print rhoGTrhocritindex
-#print rhoGTrhocritANDgood.size 
-
-#print "import numpy as np"
-#print "rhoGTrhocritindexDMG = ", list(rhoGTrhocritindex)
-#print "rhoGTrhocritANDgood = ", list(rhoGTrhocritANDgood)
-
-#plot luminosity vs radius
-"""
-fig, ax = plt.subplots(figsize=(10,8))
-im = ax.scatter(densradius[rhoGTrhocritindex],luminosity[rhoGTrhocritindex],c=gasfrac[rhoGTrhocritindex],label='DM/G',vmin=0.,vmax=.25)
-#ax.scatter(GP.luminosity,GP.densradius,c=GP.gasfrac,marker='^',label='GP',alpha=.75,vmin=0,vmax=.25)
-if vel == '11.8kms':
-	#ax.scatter(GP.densradiusGD,GP.luminosityGD,c=GP.gasfracGD,marker='*',s=500,label='SIGO',alpha=.5,vmin=0,vmax=.25)
-	ax.scatter(np.random.rand(1)[0]*(densradiusGD[rhoGTrhocritANDSIGO]-rminGD[rhoGTrhocritANDSIGO])+rminGD[rhoGTrhocritANDSIGO],luminosityGD[rhoGTrhocritANDSIGO],c=gasfracGD[rhoGTrhocritANDSIGO],marker='*',s=500,label='SIGO',alpha=.5,vmin=0,vmax=.25)
+print('fraction of DM/G greater than rho crit: '+str(1.*np.size(densradius[rhoGTrhocritindex])/np.size(densradius)))
+print('number of DM/G greater than rho crit: '+str(np.size(densradius[rhoGTrhocritindex])))
 
 
 
-
-ax.legend(loc=2)
-ax.set_xlim([0.,.4])
-#print np.mean(GP.luminosityGD) #2.3e39
-ax.set_ylim([5.0e38,2.3e40])
-#ax.set_ylim([1.e39,1.e41])
-ax.set_yscale('log')
-ax.tick_params(axis='both',which='minor',length=6)
-ax.tick_params(axis='both',which='major',length=8)
-ax.tick_params(which='both',direction='in',top=True,right=True)
-
-
-fig.subplots_adjust(right=.8)
-cbar_ax=fig.add_axes([.81,.15,.05,.7])
-cbar = fig.colorbar(im,cax=cbar_ax)
-cbar.set_label("Gas Fraction")
-
-ax.set_xlabel("Radius (kpc)")
-#ax.set_xlabel("Luminosity ($L_{\odot}$)")
-ax.set_ylabel("Luminosity (erg/s)")
-#plt.savefig('./plots/luminosityRhoCrit_'+s_vel+'randomrmaxrmin.pdf')
-plt.show()
-"""
-
-print 'fraction of DM/G greater than rho crit: '+str(1.*np.size(densradius[rhoGTrhocritindex])/np.size(densradius))
-print 'number of DM/G greater than rho crit: '+str(np.size(densradius[rhoGTrhocritindex]))
-
-# plot mag vs radius
-
-fig, ax = plt.subplots(figsize=(10,8))
-DMGmag = -2.5 * np.log10(luminosity[rhoGTrhocritindex] * 10.**-7) + 71.197425
-
-im = ax.scatter(densradius[rhoGTrhocritindex],DMGmag,c=gasfrac[rhoGTrhocritindex],label='DM/G',vmin=0.,vmax=.25)
-#ax.scatter(GP.luminosity,GP.densradius,c=GP.gasfrac,marker='^',label='GP',alpha=.75,vmin=0,vmax=.25)
-if vel == '11.8kms':
-	GPGDmag = -2.5 * np.log10(luminosityGD[rhoGTrhocritANDSIGO] * 10.**-7) + 71.197425
-
-	#ax.scatter(GP.densradiusGD,GP.luminosityGD,c=GP.gasfracGD,marker='*',s=500,label='SIGO',alpha=.5,vmin=0,vmax=.25)
-	ax.scatter(np.random.rand(1)[0]*(densradiusGD[rhoGTrhocritANDSIGO]-rminGD[rhoGTrhocritANDSIGO])+rminGD[rhoGTrhocritANDSIGO],GPGDmag,c=gasfracGD[rhoGTrhocritANDSIGO],marker='*',s=500,label='SIGO',alpha=.5,vmin=0,vmax=.25)
-
-
-
-
-ax.legend(loc=4)
-ax.set_xlim([0.,.4])
-#print np.mean(GP.luminosityGD) #2.3e39
-#ax.set_ylim([5.0e38,2.3e40])
-ax.set_ylim([-7.8,-15])
-#ax.set_yscale('log')
-ax.tick_params(axis='both',which='minor',length=6)
-ax.tick_params(axis='both',which='major',length=8)
-ax.tick_params(which='both',direction='in',top=True,right=True)
-
-
-fig.subplots_adjust(right=.8)
-cbar_ax=fig.add_axes([.81,.15,.05,.7])
-cbar = fig.colorbar(im,cax=cbar_ax)
-cbar.set_label("Gas Fraction")
-
-ax.set_xlabel("Radius (kpc)")
-#ax.set_xlabel("Luminosity ($L_{\odot}$)")
-ax.set_ylabel("Bolometric magnitude")
-yticks = ax.yaxis.get_major_ticks()
-yticks[0].label1.set_visible(False)
-#plt.savefig('./plots/magnitudeRhoCrit_'+s_vel+'randomrmaxrmin.pdf')
-plt.show()
-'''
