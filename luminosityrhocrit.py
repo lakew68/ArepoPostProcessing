@@ -294,12 +294,12 @@ over300idx = over300idx.astype(int)
 
 
 #initialize arrays
-rhocritDMG = np.zeros(cat.Group_R_Crit200.size)
-rhoDMG = np.zeros(cat.Group_R_Crit200.size)
-densradius= np.zeros(cat.Group_R_Crit200.size)
-maxrho = np.zeros(cat.Group_R_Crit200.size)
-gasmass = np.zeros(cat.Group_R_Crit200.size)
-gasfrac = np.zeros(cat.Group_R_Crit200.size)
+rhocritDMG = np.zeros(catDM.Group_R_Crit200.size)
+rhoDMG = np.zeros(catDM.Group_R_Crit200.size)
+densradius= np.zeros(catDM.Group_R_Crit200.size)
+maxrho = np.zeros(catDM.Group_R_Crit200.size)
+gasmass = np.zeros(catDM.Group_R_Crit200.size)
+gasfrac = np.zeros(catDM.Group_R_Crit200.size)
 
 
 
@@ -326,7 +326,7 @@ for i,j in enumerate(over300idx):
 		L_cloud = 2.*(catDM.Group_R_Crit200[j]*atime/hubbleparam*KPC) 
 			
 		rhocritDMG[i] = np.pi * np.mean(cs)**2. * np.mean(mach)**4. / GRAVITY_cgs / L_cloud**2.
-		rhoDMG[i] = np.sum(mGas[indgas[i]]) / (4./3. * np.pi * cat.Group_R_Crit200[j])/(time**3 / hubbleparam**2) * 1.e10 * MSUN / KPC **3.
+		rhoDMG[i] = np.sum(mGas[indgas[i]]) / (4./3. * np.pi * catDM.Group_R_Crit200[j])/(time**3 / hubbleparam**2) * 1.e10 * MSUN / KPC **3.
 
 densradius *= atime / hubbleparam
 gasmass *= 10.**10/hubbleparam
