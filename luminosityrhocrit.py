@@ -310,7 +310,7 @@ cms = catDM.GroupPos / hubbleparam / atime
 cvel = catDM.GroupVel / atime
 
 #load DM/G indices
-over300idx, indgas, inddm = np.load('particleindex_'+res+'_'+vel+'_'+str(snapnum)+'.npy')
+over300idx, indgas, inddm = np.load('particleindex_'+s_res+'_'+s_vel+'_'+str(snapnum)+'.npy')
 over300idx = over300idx.astype(int)
 
 
