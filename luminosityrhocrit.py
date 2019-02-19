@@ -254,6 +254,27 @@ rhocritGP = rhocritGP[nonzero]
 rhoGTrhocritindex, = np.where(rhoGP > rhocritGP)
 rhoGTrhocritANDSIGO, = np.where(rhoSIGO > rhocritSIGO) 
 
+#Print information
+GasPrimary = {}
+GasPrimary['rmax'] = rmax
+GasPrimary['rmin'] = rmin
+GasPrimary['gasfrac'] = gasfrac
+GasPrimary['gasmass'] = gasmass
+GasPrimary['luminosity'] = luminosity
+GasPrimary['rmaxSIGO'] = rmaxSIGO
+GasPrimary['rminSIGO'] = rminSIGO
+GasPrimary['gasfracSIGO'] = gasfracSIGO
+GasPrimary['gasmassSIGO'] = gasmassSIGO
+GasPrimary['luminositySIGO'] = luminositySIGO
+GasPrimary['rhoGP'] = rhoGP
+GasPrimary['rhocritGP'] = rhocritGP
+GasPrimary['rhoSIGO'] = rhoSIGO
+GasPrimary['rhocritSIGO'] = rhocritSIGO
+GasPrimary['rhoGTrhocritindex'] = rhoGTrhocritindex
+GasPrimary['rhoGTrhocritANDSIGO'] = rhoGTrhocritANDSIGO
+
+with open('GP_luminosity'+s_res+'_'+s_vel+'_'+str(snapnum)+'.dat','wb') as f:
+	pickle.dump(GasPrimary, f)
 
 #DMG
 
@@ -352,3 +373,17 @@ luminosity = c_LA[T] * (1.-f_esc) * Q_Hmassive
 
 rhoGTrhocritindex, = np.where(rhoDMG > rhocritDMG)
 
+
+
+#Print information
+DMG = {} 
+DMG['densradius'] = densradius
+DMG['gasfrac'] = gasfrac
+DMG['gasmass'] = gasmass
+DMG['rhoDMG'] = rhoDMG
+DMG['rhocritDMG'] = rhocritDMG
+DMG['luminosity'] = luminosity
+DMG['rhoGTrhocritindex'] = rhoGTrhocritindex
+
+with open('DMG_luminosity'+s_res+'_'+s_vel+'_'+str(snapnum)+'.dat','wb') as f:
+	pickle.dump(DMG, f)
