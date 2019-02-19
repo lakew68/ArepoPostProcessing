@@ -261,17 +261,18 @@ GasPrimary['rmin'] = rmin
 GasPrimary['gasfrac'] = gasfrac
 GasPrimary['gasmass'] = gasmass
 GasPrimary['luminosity'] = luminosity
-GasPrimary['rmaxSIGO'] = rmaxSIGO
-GasPrimary['rminSIGO'] = rminSIGO
-GasPrimary['gasfracSIGO'] = gasfracSIGO
-GasPrimary['gasmassSIGO'] = gasmassSIGO
-GasPrimary['luminositySIGO'] = luminositySIGO
 GasPrimary['rhoGP'] = rhoGP
 GasPrimary['rhocritGP'] = rhocritGP
-GasPrimary['rhoSIGO'] = rhoSIGO
-GasPrimary['rhocritSIGO'] = rhocritSIGO
 GasPrimary['rhoGTrhocritindex'] = rhoGTrhocritindex
-GasPrimary['rhoGTrhocritANDSIGO'] = rhoGTrhocritANDSIGO
+if s_vel == '118kms':
+	GasPrimary['rhoSIGO'] = rhoSIGO
+	GasPrimary['rhocritSIGO'] = rhocritSIGO
+	GasPrimary['rhoGTrhocritANDSIGO'] = rhoGTrhocritANDSIGO
+	GasPrimary['rmaxSIGO'] = rmaxSIGO
+	GasPrimary['rminSIGO'] = rminSIGO
+	GasPrimary['gasfracSIGO'] = gasfracSIGO
+	GasPrimary['gasmassSIGO'] = gasmassSIGO
+	GasPrimary['luminositySIGO'] = luminositySIGO
 
 with open('GP_luminosity'+s_res+'_'+s_vel+'_'+str(snapnum)+'.dat','wb') as f:
 	pickle.dump(GasPrimary, f)
