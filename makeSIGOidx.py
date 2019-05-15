@@ -126,7 +126,7 @@ for i in halo100_indices:
 
 		# Figure out which particles are inside the ellipsoid
 		inEll = (Precentered[:,0]**2./radii[0]**2. + Precentered[:,1]**2./radii[1]**2 + Precentered[:,2]**2./radii[2]**2)<=1.
-		if np.size(P[inEll]) > 100: #Only consider SIGOs with greater than 100 particles
+		if np.shape(P[inEll])[0] > 32: #Only consider SIGOs with greater than 32 particles
 			if (np.sum(M[inEll])/(np.sum(M[inEll])+mDM)>.4) and (Rclosest/R200dm>1.):
 				SIGOidx += [i]	
 
