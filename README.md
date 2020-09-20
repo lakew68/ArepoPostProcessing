@@ -10,7 +10,7 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 - shrinker.py fits a tightly fitted ellipsoid to GPs.
 - spinclass.py contains routines to calculate the spin parameter of DM/Gs.
 - spinclassellipsoid.py contains routines to calculate the spin parameter of GPs.
-- projection.py produces gas projection plots using
+- projection.py produces gas projection plots.
 
 # Workflow
 
