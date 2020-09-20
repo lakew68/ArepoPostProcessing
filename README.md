@@ -15,10 +15,15 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 # Workflow
 
 1.) Run particleindicesgeneral.py
+
 2.) Run match.py
+
 3.) Run shrinker.py
+
 4.) Run makeSIGOidx.py
+
 5.) (Optional: run spinclass/spinclassellipsoid if working with spin parameter)
+
 6.) (Optional: run luminosityrhochrit.py if working with semianalytic luminosity model)
 
 # TODO: 
