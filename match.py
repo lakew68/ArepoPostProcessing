@@ -1,13 +1,12 @@
 """
 Computes the closest DM halo counterpart of Gas primary objects
-Usage: python match.py 1.4Mpc 11.8kms 10
 Returns: pickled file with dictionary containing matched information
 
-12/11/18
+Updated 10/12/23
 """
 
 from __future__ import print_function, division
-from sys import argv
+
 import numpy as np
 import readsubfHDF5
 import snapHDF5
@@ -51,72 +50,92 @@ hubbleparam = .71 #hubble constant
 baryonfraction = .044 / .27 #OmegaB/Omega0
 
 #Should be run with a snap number input
-script, res, vel,  snapnum = argv
-snapnum = int(snapnum) 
-s_vel = vel.replace(".","")
-s_res = res.replace(".","")
+res = '14Mpc'
+vel = 'Sig2'
+snapkey = range(154)
+for snapnum in snapkey:
+    snapnum = int(snapnum)
+    s_vel = vel.replace(".","")
+    s_res = res.replace(".","")
 
-#File paths
-filename = "/n/hernquistfs3/mvogelsberger/GlobularClusters/InterfaceWArepo_All_" + res + '_' + vel  + "/output/"
-filename2 = filename +  "DM_FOF" #Used for readsubfHDF5
-filename3 = filename + "snap_" + str(snapnum).zfill(3) #Used for snapHDF5
+    #File paths
+    filename = "D:/Star_Movie_768/"
+    filename2 = filename +  "DM_FOF" #Used for readsubfHDF5
+    filename3 = filename + "snap_" + str(snapnum).zfill(3) #Used for snapHDF5
 
-#Read header information
-header = snapHDF5.snapshot_header(filename3)
-red = header.redshift
-atime = header.time
-boxSize = header.boxsize
-Omega0 = header.omega0
-OmegaLambda = header.omegaL
-massDMParticle = header.massarr[1] #all DM particles have same mass
+    #Read header information
+    header = snapHDF5.snapshot_header(filename3)
+    red = header.redshift
+    
+    atime = header.time
+    boxSize = header.boxsize
+    Omega0 = header.omega0
+    OmegaLambda = header.omegaL
+    massDMParticle = header.massarr[1] #all DM particles have same mass
 
-#redshift evolution of critical_density
-critical_density *= Omega0 + atime**3 * OmegaLambda
-critical_density_gas = critical_density * baryonfraction
+    #redshift evolution of critical_density
+    critical_density *= Omega0 + atime**3 * OmegaLambda
+    critical_density_gas = critical_density * baryonfraction
+    #Read halo catalog
+    catDM = readsubfHDF5.subfind_catalog(filename + "DM_FOF", snapnum)
+    catGas = readsubfHDF5.subfind_catalog(filename + "GasOnly_FOF", snapnum)
+    
 
+    #Get CM & R200 of all halos w/ >300 DM particles, >100 gas particles
+    GroupPos_Gas = catGas.GroupPos[catGas.GroupLenType[:,0]+catGas.GroupLenType[:,4]>100]
+    GroupPos_DM = catDM.GroupPos[catDM.GroupLenType[:,1]>300]
+    R200_DM = catDM.Group_R_Crit200[catDM.GroupLenType[:,1]>300]
+    M200_DM = catDM.Group_M_Crit200[catDM.GroupLenType[:,1]>300]
+    print(np.ndim(GroupPos_Gas))
+    print(np.shape(GroupPos_Gas))
+    np.savetxt("foo.csv", catGas.GroupLenType[:,0]>100, delimiter=",")
 
-#Read halo catalog
-catGas = readsubfHDF5.subfind_catalog(filename + "GasOnly_FOF", snapnum)
-catDM = readsubfHDF5.subfind_catalog(filename + "DM_FOF", snapnum)
-
-#Get CM & R200 of all halos w/ >300 DM particles, >100 gas particles
-GroupPos_Gas = catGas.GroupPos[catGas.GroupLenType[:,0]>100]
-GroupPos_DM = catDM.GroupPos[catDM.GroupLenType[:,1]>300]
-R200_DM = catDM.Group_R_Crit200[catDM.GroupLenType[:,1]>300]
-M200_DM = catDM.Group_M_Crit200[catDM.GroupLenType[:,1]>300]
-
-#Filter for nonzero R200
-GroupPos_DM = GroupPos_DM[R200_DM!=0.]
-M200_DM = M200_DM[R200_DM!=0.]
-R200_DM = R200_DM[R200_DM!=0.]
-
-
-#Allocate arrays 
-matchingHalos = [] 
-Rmin = []
-R200dm = [] 
-M200dm = []
- 
-#For each gas object, calculate the distance to all DM objects
-#Get the minimum and record that as the separation 
-
-for igas, groupPos in list(enumerate(GroupPos_Gas)):
-	dists = dist2(GroupPos_DM[:,0]-groupPos[0], GroupPos_DM[:,1]-groupPos[1], GroupPos_DM[:,2]-groupPos[2],boxSize)
-	idx = np.where(dists == np.min(dists))[0][0]
-	matchingHalos += [idx]
-	Rmin += [np.sqrt(np.min(dists))] #dists is actually squared
-	M200dm += [M200_DM[idx]]
-	R200dm += [R200_DM[idx]]
-
-#Print information
-matched = {} #Initialize dict of results
-matched['red'] = np.array(red)
-matched['matchingHalos'] = np.array(matchingHalos)
-matched['Rmin'] = np.array(Rmin)
-matched['R200dm'] = np.array(R200dm)
-matched['M200dm'] = np.array(M200dm)
+    #Filter for nonzero R200
+    GroupPos_DM = GroupPos_DM[R200_DM!=0.]
+    M200_DM = M200_DM[R200_DM!=0.]
+    R200_DM = R200_DM[R200_DM!=0.]
 
 
-with open("match"+s_res+"_"+s_vel+"_"+str(snapnum)+".dat", 'wb') as f:
-    pickle.dump(matched, f)
+    #Allocate arrays 
+    matchingHalos = [] 
+    Rmin = []
+    R200dm = [] 
+    M200dm = []
+    matchingHalos2 = [] 
+    Rmin2 = []
+    R200dm2 = []
+    M200dm2 = []
+
+    #For each gas object, calculate the distance to all DM objects
+    #Get the minimum and record that as the separation 
+
+    for igas, groupPos in list(enumerate(GroupPos_Gas)):
+        dists = dist2(GroupPos_DM[:,0]-groupPos[0], GroupPos_DM[:,1]-groupPos[1], GroupPos_DM[:,2]-groupPos[2],boxSize)
+        virDists = np.sqrt(dists) / R200_DM
+        idx = np.where(virDists == np.min(virDists))[0][0]
+        matchingHalos += [idx]
+        Rmin += [np.sqrt(dists[idx])] #dists is actually squared
+        M200dm += [M200_DM[idx]]
+        R200dm += [R200_DM[idx]]
+        idx2 = sorted(list(enumerate(virDists)), key=lambda x: x[1])[1][0] #Gets index of second largest distance
+        matchingHalos2 += [idx2]
+        Rmin2 += [np.sqrt(dists[idx2])] #dists is actually squared
+        M200dm2 += [M200_DM[idx2]]
+        R200dm2 += [R200_DM[idx2]]
+
+    #Print information
+    matched = {} #Initialize dict of results
+    matched['red'] = np.array(red)
+    matched['matchingHalos'] = np.array(matchingHalos)
+    matched['Rmin'] = np.array(Rmin)
+    matched['R200dm'] = np.array(R200dm)
+    matched['M200dm'] = np.array(M200dm)
+    matched['matchingHalos2'] = np.array(matchingHalos2)
+    matched['Rmin2'] = np.array(Rmin2)
+    matched['R200dm2'] = np.array(R200dm2)
+    matched['M200dm2'] = np.array(M200dm2)
+
+
+    with open(filename + "match"+s_res+"_"+s_vel+"_"+str(snapnum)+"_2.dat", 'wb') as f:
+        pickle.dump(matched, f)
 
