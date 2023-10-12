@@ -1,6 +1,6 @@
 # ArepoPostProcessing
 
-Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Objects (SIGOs) (see Naoz+14, Popa+16, Chiou+18, Chiou+19, Lake+21, Lake+23a, Lake+23b)
+Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Objects (SIGOs) (see Naoz+14, Popa+16, Chiou+18, Chiou+19, Chiou+21, Lake+21, Lake+23a, Lake+23b, Williams+23)
 
 - annikaEllipsoid.py contains routines for ellipsoid fitting of gas cells.
 - luminosityrhochrit.py contains routines for calculation of luminosity of SIGOs
