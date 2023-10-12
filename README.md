@@ -11,6 +11,7 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 - spinclass.py contains routines to calculate the spin parameter of DM/Gs.
 - spinclassellipsoid.py contains routines to calculate the spin parameter of GPs.
 - projection.py produces gas projection plots.
+- makeiddictionary.py produces a hashmap containing particle IDs for every object in the simulation across snapshots.
 - evolutiontracker.py produces a digraph representing the evolution of all objects in the simulation across snapshots.
 
 # Workflow
@@ -27,7 +28,9 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 
 6.) (Optional: run luminosityrhochrit.py if working with semianalytic luminosity model)
 
-7.) (Optional: run evolutiontracker.py if tracking the evolution of objects)
+7.) (Optional: run makeiddictionary.py if tracking the evolution of objects)
+
+8.) (Optional: run evolutiontracker.py if tracking the evolution of objects)
 
 # TODO: 
 - correct gasindices in shrinker.py
