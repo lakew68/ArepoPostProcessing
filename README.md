@@ -1,6 +1,6 @@
 # ArepoPostProcessing
 
-Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Objects (SIGOs) (see Naoz+14, Popa+16, Chiou+18, Chiou+19)
+Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Objects (SIGOs) (see Naoz+14, Popa+16, Chiou+18, Chiou+19, Lake+21, Lake+23a, Lake+23b)
 
 - annikaEllipsoid.py contains routines for ellipsoid fitting of gas cells.
 - luminosityrhochrit.py contains routines for calculation of luminosity of SIGOs
@@ -11,6 +11,7 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 - spinclass.py contains routines to calculate the spin parameter of DM/Gs.
 - spinclassellipsoid.py contains routines to calculate the spin parameter of GPs.
 - projection.py produces gas projection plots.
+- evolutiontracker.py produces a digraph representing the evolution of all objects in the simulation across snapshots.
 
 # Workflow
 
@@ -26,9 +27,9 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 
 6.) (Optional: run luminosityrhochrit.py if working with semianalytic luminosity model)
 
+7.) (Optional: run evolutiontracker.py if tracking the evolution of objects)
+
 # TODO: 
 - correct gasindices in shrinker.py
 
-- update spinclassellipsoid.py
 
-- make object-oriented. class for group, subclass DM/G, GP, subclass SIGO
