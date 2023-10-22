@@ -34,7 +34,7 @@ def dist2(dx,dy,dz,box):
 	#Calculates distance taking into account periodic boundary conditions
 	return dx_wrap(dx,box)**2 + dx_wrap(dy,box)**2 + dx_wrap(dz,box)**2
 
-filename = "SF_Sig0/"
+filename = "D:/Star_Movie_768/"
 s_res = '14Mpc'
 s_vel = 'Sig2'
 box = 1775
