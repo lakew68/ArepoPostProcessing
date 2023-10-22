@@ -36,7 +36,7 @@ def dist2(dx,dy,dz,box):
 
 filename = "SF_Sig0/"
 s_res = '14Mpc'
-s_vel = 'Sig0'
+s_vel = 'Sig2'
 box = 1775
 snapkey = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150]
 
@@ -47,11 +47,8 @@ gasObjectIndices = [] # This is a good reference for all of our gas objects' ind
 for snapnum2 in snapkey:
     gasObjectIndex = []
     #Should be run with a snap number input
-    res = '14Mpc'
-    vel = 'Sig2'
+	
     snapnum = int(snapnum2)
-    s_vel = vel.replace(".","")
-    s_res = res.replace(".","")
 
     #File paths
     filename = "D:/Star_Movie_768/"
