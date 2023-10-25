@@ -11,7 +11,7 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 - spinclass.py contains routines to calculate the spin parameter of DM/Gs.
 - spinclassellipsoid.py contains routines to calculate the spin parameter of GPs.
 - projection.py produces gas projection plots.
-- makeiddictionary.py produces a hashmap containing particle IDs for every object in the simulation across snapshots.
+- makeiddictionary.py produces a dictionary containing particle IDs for every object in the simulation across snapshots.
 - evolutiontracker.py produces a digraph representing the evolution of all objects in the simulation across snapshots.
 - DMVisualization.py generates gas density and DM density projections with the SIGO outlined, for presentation and for filtering.
 
