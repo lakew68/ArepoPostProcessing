@@ -13,6 +13,7 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 - projection.py produces gas projection plots.
 - makeiddictionary.py produces a hashmap containing particle IDs for every object in the simulation across snapshots.
 - evolutiontracker.py produces a digraph representing the evolution of all objects in the simulation across snapshots.
+- DMVisualization.py generates gas density and DM density projections with the SIGO outlined, for presentation and for filtering.
 
 # Workflow
 
@@ -24,13 +25,15 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 
 4.) Run makeSIGOidx.py
 
-5.) (Optional: run spinclass/spinclassellipsoid if working with spin parameter)
+5.) To visually confirm important SIGOs and remove NSCs, run DMVisualization.py.
 
-6.) (Optional: run luminosityrhochrit.py if working with semianalytic luminosity model)
+6.) (Optional: run spinclass/spinclassellipsoid if working with spin parameter)
 
-7.) (Optional: run makeiddictionary.py if tracking the evolution of objects)
+7.) (Optional: run luminosityrhochrit.py if working with semianalytic luminosity model)
 
-8.) (Optional: run evolutiontracker.py if tracking the evolution of objects)
+8.) (Optional: run makeiddictionary.py if tracking the evolution of objects)
+
+9.) (Optional: run evolutiontracker.py if tracking the evolution of objects)
 
 # TODO: 
 - correct gasindices in shrinker.py
