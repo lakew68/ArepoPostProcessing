@@ -3,17 +3,18 @@
 Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Objects (SIGOs) (see Naoz+14, Popa+16, Chiou+18, Chiou+19, Chiou+21, Lake+21, Lake+23a, Lake+23b, Williams+23)
 
 - annikaEllipsoid.py contains routines for ellipsoid fitting of gas cells.
+- DMVisualization.py generates gas density and DM density projections with the SIGO outlined, for presentation and for filtering.
+- evolutiontracker.py produces a digraph representing the evolution of all objects in the simulation across snapshots.
 - luminosityrhochrit.py contains routines for calculation of luminosity of SIGOs
+- makeiddictionary.py produces a dictionary containing particle IDs for every object in the simulation across snapshots.
 - makeSIGOidx.py finds all SIGOs from Gas-Primary (GP) objects
 - match.py finds the closest GP to the Dark Matter Primary/Gas Secondary (DM/G) objects
 - particleindicesgeneral.py finds all particles associated with DM/Gs.
+- projection.py produces gas projection plots. (Mostly deprecated with the move we're making to Py3, use DMVisualization.py or yt)
 - shrinker.py fits a tightly fitted ellipsoid to GPs.
 - spinclass.py contains routines to calculate the spin parameter of DM/Gs.
 - spinclassellipsoid.py contains routines to calculate the spin parameter of GPs.
-- projection.py produces gas projection plots. (Mostly deprecated with the move we're making to Py3, use DMVisualization.py or yt)
-- makeiddictionary.py produces a dictionary containing particle IDs for every object in the simulation across snapshots.
-- evolutiontracker.py produces a digraph representing the evolution of all objects in the simulation across snapshots.
-- DMVisualization.py generates gas density and DM density projections with the SIGO outlined, for presentation and for filtering.
+- starcluster_shrinker.py fits a tightly fitted ellipsoid to the stellar component of GPs.
 
 # Workflow
 
@@ -34,6 +35,8 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 8.) (Optional: run makeiddictionary.py if tracking the evolution of objects)
 
 9.) (Optional: run evolutiontracker.py if tracking the evolution of objects)
+
+10.) (Optional: run starcluster_shrinker.py for Kennicutt-Schmidt relation)
 
 # TODO: 
 - correct gasindices in shrinker.py
