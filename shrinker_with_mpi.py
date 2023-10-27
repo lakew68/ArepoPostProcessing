@@ -31,11 +31,10 @@ def dist2(dx,dy,dz,box):
 
 # For mpi
 
-numProcesses = 10 # Change according to number of cores
 comm = MPI.COMM_WORLD
-size = comm.Get_size()
+numProcesses = comm.Get_size()
 rank = comm.Get_rank()
-print(size,rank)
+print(numProcesses,rank)
 
 # Units
 GRAVITY_cgs = 6.672e-8
