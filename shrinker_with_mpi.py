@@ -142,7 +142,7 @@ for snapnum2 in snapkey:
         if rank == 0:
             dataArray = [0] * numProcesses
             for loopidx in range(numProcesses):
-		if parallelLoopIdx*numProcesses+loopidx > len(halo100_indices):
+		if parallelLoopIdx*numProcesses+loopidx >= len(halo100_indices):
 		    continue
                 idx = halo100_indices[parallelLoopIdx*numProcesses+loopidx]
                 cm = haloPos[idx] 
