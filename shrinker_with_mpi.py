@@ -256,19 +256,19 @@ for snapnum2 in snapkey:
                         stellarmass = 0
                         if len(tempPosStar) == 0:
                             #SIGO has no Stars
-                            mStar_ellipsoid += [0.]
-                            starIDs += [[-1]]
+                            mStar_ellipsoid[np.where(halo100_indices==idx)[0][0]] = [0.]
+                            starIDs[np.where(halo100_indices==idx)[0][0]] = [-1]
                         else:
                             StarinEll = tempPosStar[:,0]**2/ratios[0]**2 + tempPosStar[:,1]**2/ratios[1]**2 + tempPosStar[:,2]**2 <= tempAxis**2 
                             stellarmass = np.sum(mStar[nearidx][StarinEll])
-                            starIDs += [IDStar[nearidx][StarinEll]]
-                            mStar_ellipsoid += [stellarmass]
+                            starIDs[np.where(halo100_indices==idx)[0][0]] = IDStar[nearidx][StarinEll]
+                            mStar_ellipsoid [np.where(halo100_indices==idx)[0][0]] = stellarmass
                             
                     else:
                         #Simulation has no Stars
                         stellarmass = 0
-                        mStar_ellipsoid += [0.]
-                        starIDs += [[-1]]
+                        mStar_ellipsoid[np.where(halo100_indices==idx)[0][0]] = 0.
+                        starIDs[np.where(halo100_indices==idx)[0][0]] = [-1]
 
                     #Calculate DM mass
                     tempPosDM = dx_wrap(pDM-cm,boxSize)			
@@ -279,21 +279,21 @@ for snapnum2 in snapkey:
                     tempPosDM = np.array([np.dot(pp,evecs.T) for pp in tempPosDM])
                     if len(tempPosDM) == 0:
                         #Edge case: SIGO has no DM
-                        mDM_ellipsoid += [0.]
+                        mDM_ellipsoid[np.where(halo100_indices==idx)[0][0]] =0.
                         print("Index", idx)
-                        DMIDs += [[-1]]
-                        gasFrac += [1.]
+                        DMIDs[np.where(halo100_indices==idx)[0][0]] = [-1]
+                        gasFrac[np.where(halo100_indices==idx)[0][0]] = 1.
                     else:
                         DMinEll = tempPosDM[:,0]**2/ratios[0]**2 + tempPosDM[:,1]**2/ratios[1]**2 + tempPosDM[:,2]**2 <= tempAxis**2 
-                        mDM_ellipsoid += [1.*np.sum(DMinEll)*massDMParticle]
-                        DMIDs += [IDDM[nearidx][DMinEll]]
-                        gasFrac += [(mGas+1.*stellarmass)/(mGas + stellarmass + 1.*np.sum(DMinEll)*massDMParticle)]	
+                        mDM_ellipsoid[np.where(halo100_indices==idx)[0][0]] = 1.*np.sum(DMinEll)*massDMParticle
+                        DMIDs[np.where(halo100_indices==idx)[0][0]] = IDDM[nearidx][DMinEll]
+                        gasFrac[np.where(halo100_indices==idx)[0][0]] = (mGas+1.*stellarmass)/(mGas + stellarmass + 1.*np.sum(DMinEll)*massDMParticle)
                 else:
                     # Couldn't locate center of mass
-                    mStar_ellipsoid += [0.]
-                    starIDs += [[-1]]
-                    DMIDs += [[-1]]
-                    gasFrac += [1.]
+                    mStar_ellipsoid[np.where(halo100_indices==idx)[0][0]] = 0.
+                    starIDs[np.where(halo100_indices==idx)[0][0]] = [-1]
+                    DMIDs[np.where(halo100_indices==idx)[0][0]] = [-1]
+                    gasFrac[np.where(halo100_indices==idx)[0][0]] = 1.
     if rank == 0:
         #Print information
         shrunken = {} #Initialize dict of results
