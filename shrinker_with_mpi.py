@@ -60,7 +60,8 @@ hubbleparam = .71 #hubble constant
 baryonfraction = .044 / .27 #OmegaB/Omega0
 snapkey = [6]
 for snapnum2 in snapkey:
-    if rank == 0: # The master/rank 0 is the only process that reads the files
+    if rank == 0: # The master is the only process that reads the file
+        #Should be run with a snap number input
         startTime = time.clock()
     else:
         startTime = 0
@@ -201,7 +202,7 @@ for snapnum2 in snapkey:
 
                 if not skipThis:
                     over =  np.sum(M[inEll])/(4.*np.pi/3.*ratios[0]*ratios[1]*tempAxis**3.)/critical_density_gas
-                    mGas = np.sum(M[inEll])
+                    gasMass = np.sum(M[inEll])
                     overRadius = over
                     radii = np.array([tempAxis*ratios[0], tempAxis*ratios[1], tempAxis])
                     rotation = np.array(evecs)
@@ -215,19 +216,25 @@ for snapnum2 in snapkey:
                     radius_ellipsoid = [-1.,-1.,-1.]
                     rotation = [[-1.,-1.,-1.],[-1.,-1.,-1.],[-1.,-1.,-1.]]
                     cm = [-1.,-1.,-1.]
-                    mGas = -1.
+                    gasMass = -1.
                     gasindex = [-1]
                     gasID = [-1]
+                    tempAxis = -1
+                    ratios = [-1,-1,-1]
+                    evecs = [-1,-1,-1]
             else:
                 print(idx, ' had no gas')
                 overRadius = -1.
                 radius_ellipsoid = [-1.,-1.,-1.]
                 rotation = [[-1.,-1.,-1.],[-1.,-1.,-1.],[-1.,-1.,-1.]]
                 cm = [-1.,-1.,-1.]
-                mGas = -1.
+                gasMass = -1.
                 gasindex = [-1]
                 gasID = [-1]
-            outputTuple = (idx,overRadius,radius_ellipsoid,rotation,cm,mGas,gasindex,gasID,tempAxis,ratios,evecs)
+                tempAxis = -1
+                ratios = [-1,-1,-1]
+                evecs = [-1,-1,-1]
+            outputTuple = (idx,overRadius,radius_ellipsoid,rotation,cm,gasMass,gasindex,gasID,tempAxis,ratios,evecs)
         
         outputData = comm.gather(outputTuple,root=0)
                 
@@ -235,7 +242,7 @@ for snapnum2 in snapkey:
             for i in range(len(outputData)):
                 if type(outputData[i]) == type(0):
                     continue
-                idx,overRadius,radius_ellipsoid,rotation,cm,mGas,gasindex,gasID,tempAxis,ratios,evecs = outputData[i]
+                idx,overRadius,radius_ellipsoid,rotation,cm,gasMass,gasindex,gasID,tempAxis,ratios,evecs = outputData[i]
                 radii_ellipsoid[np.where(halo100_indices==idx)[0][0]] = radius_ellipsoid
                 rotation_ellipsoid[np.where(halo100_indices==idx)[0][0]] = rotation
                 cm_ellipsoid[np.where(halo100_indices==idx)[0][0]] = cm
@@ -286,7 +293,7 @@ for snapnum2 in snapkey:
                         DMinEll = tempPosDM[:,0]**2/ratios[0]**2 + tempPosDM[:,1]**2/ratios[1]**2 + tempPosDM[:,2]**2 <= tempAxis**2 
                         mDM_ellipsoid[np.where(halo100_indices==idx)[0][0]] = 1.*np.sum(DMinEll)*massDMParticle
                         DMIDs[np.where(halo100_indices==idx)[0][0]] = IDDM[nearidx][DMinEll]
-                        gasFrac[np.where(halo100_indices==idx)[0][0]] = (mGas+1.*stellarmass)/(mGas + stellarmass + 1.*np.sum(DMinEll)*massDMParticle)
+                        gasFrac[np.where(halo100_indices==idx)[0][0]] = (gasMass+1.*stellarmass)/(gasMass + stellarmass + 1.*np.sum(DMinEll)*massDMParticle)
                 else:
                     # Couldn't locate center of mass
                     mStar_ellipsoid[np.where(halo100_indices==idx)[0][0]] = 0.
