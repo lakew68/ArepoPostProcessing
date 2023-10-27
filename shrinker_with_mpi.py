@@ -35,7 +35,8 @@ def dist2(dx,dy,dz,box):
 comm = MPI.COMM_WORLD
 numProcesses = comm.Get_size()
 rank = comm.Get_rank()
-print(numProcesses,rank)
+if rank == 0:
+    print(numProcesses,rank)
 
 # Units
 GRAVITY_cgs = 6.672e-8
@@ -85,9 +86,9 @@ for snapnum2 in snapkey:
     Omega0 = header.omega0
     OmegaLambda = header.omegaL
     massDMParticle = header.massarr[1] #all DM particles have same mass
-
-    print("DM mass: ", massDMParticle)
-    print(header.massarr)
+    if rank == 0:
+        print("DM mass: ", massDMParticle)
+        print(header.massarr)
 
     #redshift evolution of critical_density
     critical_density *= Omega0 + atime**3 * OmegaLambda
@@ -134,13 +135,14 @@ for snapnum2 in snapkey:
         
     halo100_indices = comm.bcast(halo100_indices, root=0)
     loopLen = int(len(halo100_indices)/numProcesses + .99999)
-    print(loopLen)
+    if rank == 0:
+        print('Number of data loops: ', loopLen)
      
     for parallelLoopIdx in range(loopLen):
         if rank == 0:
             dataArray = [0] * numProcesses
             for loopidx in range(numProcesses):
-                idx = halo100_indices[parallelLoopIdx*loopLen+loopidx]
+                idx = halo100_indices[parallelLoopIdx*numProcesses+loopidx]
                 cm = haloPos[idx] 
                 startGas = startAllGas[idx]
                 endGas = endAllGas[idx]
@@ -243,6 +245,7 @@ for snapnum2 in snapkey:
                 if type(outputData[i]) == type(0):
                     continue
                 idx,overRadius,radius_ellipsoid,rotation,cm,gasMass,gasindex,gasID,tempAxis,ratios,evecs = outputData[i]
+		print(idx)
                 radii_ellipsoid[np.where(halo100_indices==idx)[0][0]] = radius_ellipsoid
                 rotation_ellipsoid[np.where(halo100_indices==idx)[0][0]] = rotation
                 cm_ellipsoid[np.where(halo100_indices==idx)[0][0]] = cm
@@ -322,9 +325,9 @@ for snapnum2 in snapkey:
             pickle.dump(shrunken, f)
 
         print('Time for snap ', str(snapnum),': ', str((time.clock()-startTime)/60./60.), ' hours.')
-
 if rank == 0:
-    with open("parallelTime_12.txt", "w") as text_file:
+    with open("parallelTime_16.txt", "w") as text_file:
         text_file.write("Processing time: %s hours" % str((time.clock()-startTime)/60./60.))
 
-    print('Done')  
+    print('Done')       
+                
