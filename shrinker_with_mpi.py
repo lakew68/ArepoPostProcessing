@@ -142,6 +142,8 @@ for snapnum2 in snapkey:
         if rank == 0:
             dataArray = [0] * numProcesses
             for loopidx in range(numProcesses):
+		if parallelLoopIdx*numProcesses+loopidx > len(halo100_indices):
+		    continue
                 idx = halo100_indices[parallelLoopIdx*numProcesses+loopidx]
                 cm = haloPos[idx] 
                 startGas = startAllGas[idx]
@@ -321,12 +323,12 @@ for snapnum2 in snapkey:
         shrunken['starIDs'] = np.array(starIDs) #star indices in the ellipsoid
         shrunken['mStar'] = np.array(mStar_ellipsoid) #star mass in the ellipsoid
 
-        with open(filename+'shrinker_mpiTest'+s_res+'_'+s_vel+'_'+str(snapnum)+'.dat','wb') as f:
+        with open(filename+'shrinker_mpiTest'+s_res+'_'+s_vel+'_'+str(snapnum)+'_'+str(numProcesses)+'.dat','wb') as f:
             pickle.dump(shrunken, f)
 
         print('Time for snap ', str(snapnum),': ', str((time.clock()-startTime)/60./60.), ' hours.')
 if rank == 0:
-    with open("parallelTime_16.txt", "w") as text_file:
+    with open("parallelTime_"+str(numProcesses)+".txt", "w") as text_file:
         text_file.write("Processing time: %s hours" % str((time.clock()-startTime)/60./60.))
 
     print('Done')       
