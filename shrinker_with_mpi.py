@@ -323,8 +323,8 @@ for snapnum2 in snapkey:
 
         print('Time for snap ', str(snapnum),': ', str((time.clock()-startTime)/60./60.), ' hours.')
 
-with open("parallelTime.txt", "w") as text_file:
-    text_file.write("Processing time: %s hours" % str((time.clock()-startTime)/60./60.))
+if rank == 0:
+    with open("parallelTime_12.txt", "w") as text_file:
+        text_file.write("Processing time: %s hours" % str((time.clock()-startTime)/60./60.))
 
-print('Done')       
-                
+    print('Done')  
