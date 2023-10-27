@@ -60,8 +60,7 @@ hubbleparam = .71 #hubble constant
 baryonfraction = .044 / .27 #OmegaB/Omega0
 snapkey = [6]
 for snapnum2 in snapkey:
-    if rank == 0: # The master is the only process that reads the file
-        #Should be run with a snap number input
+    if rank == 0: # The master/rank 0 is the only process that reads the files
         startTime = time.clock()
     else:
         startTime = 0
