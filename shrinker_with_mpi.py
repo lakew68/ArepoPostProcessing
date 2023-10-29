@@ -174,7 +174,7 @@ for snapnum2 in snapkey:
         else:
             dataArray = [0] * numProcesses
         dataArray = comm.scatter(dataArray,root=0)
-        if len(dataArray) < 7:
+        if type(dataArray) == int:
             outputTuple = 0
         else:
             idx,cm,startGas,endGas,P,I,M = dataArray
