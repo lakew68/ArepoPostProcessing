@@ -13,6 +13,7 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 - projection.py produces gas projection plots. (Mostly deprecated with the move we're making to Py3, use DMVisualization.py or yt)
 - shrinker.py fits a tightly fitted ellipsoid to GPs.
 - shrinker_with_mpi.py is an alternative version of shrinker that parallelizes the gas fitting. Use with mpi4py on a cluster.
+- shrinker_with_copied_memory.py parallelizes finding star and dm particles in the ellipsoids, but uses a lot of memory: be careful with it!
 - spinclass.py contains routines to calculate the spin parameter of DM/Gs.
 - spinclassellipsoid.py contains routines to calculate the spin parameter of GPs.
 - starcluster_shrinker.py fits a tightly fitted ellipsoid to the stellar component of GPs.
@@ -23,7 +24,7 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 
 2.) Run match.py
 
-3.) Run shrinker.py or shrinker_with_mpi.py
+3.) Run shrinker.py, shrinker_with_copied_memory.py, or shrinker_with_mpi.py
 
 4.) Run makeSIGOidx.py
 
