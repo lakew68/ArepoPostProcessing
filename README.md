@@ -42,5 +42,6 @@ Set of codes to postprocess Arepo simulations and Supersonically Induced Gas Obj
 
 # TODO: 
 - correct gasindices in shrinker.py
+- Make shared memory for shrinker_with_copied_memory.py
 
 
