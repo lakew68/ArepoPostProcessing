@@ -1,8 +1,8 @@
 """
 Program to fit ellipsoid to FOF object, then shrinks the ellipsoid, in parallel. Use on cluster like Hoffman.
 Returns: pickled file with dictionary containing ellipsoid information
-Run with a command like `mpirun -np 16 python shrinker_with_copied_memory.py' where the number after np is the number of threads it will use.
-Note: this is our fastest version of shrinker, but works by copying a large portion of the data used to every process, so be judicious with the number of processes you use, and it won't work for high res data.
+Run with a command like `mpirun -np 16 python shrinker_with_mpi.py' where the number after np is the number of threads it will use.
+
 10/26/23
 """
 
@@ -299,6 +299,8 @@ for snapnum2 in snapkey:
                 mStar_ellipsoid[np.where(halo100_indices==idx)[0][0]] = stellarmass
                 gasFrac[np.where(halo100_indices==idx)[0][0]] = gasfrac
                 mDM_ellipsoid[np.where(halo100_indices==idx)[0][0]] = dmmass
+                mGas_ellipsoid[np.where(halo100_indices==idx)[0][0]] = gasMass
+                overRadii[np.where(halo100_indices==idx)[0][0]] = overRadius
                 
                 if cm[0] > -1:
                     #Calculate Star mass
