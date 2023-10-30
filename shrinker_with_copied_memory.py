@@ -1,7 +1,7 @@
 """
 Program to fit ellipsoid to FOF object, then shrinks the ellipsoid, in parallel. Use on cluster like Hoffman.
 Returns: pickled file with dictionary containing ellipsoid information
-Run with a command like `mpirun -np 16 python shrinker_with_mpi.py' where the number after np is the number of threads it will use.
+Run with a command like `mpirun -np 16 python shrinker_with_copied_memory.py' where the number after np is the number of threads it will use.
 
 10/26/23
 """
