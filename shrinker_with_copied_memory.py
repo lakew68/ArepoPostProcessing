@@ -301,6 +301,7 @@ for snapnum2 in snapkey:
                 mDM_ellipsoid[np.where(halo100_indices==idx)[0][0]] = dmmass
                 mGas_ellipsoid[np.where(halo100_indices==idx)[0][0]] = gasMass
                 overRadii[np.where(halo100_indices==idx)[0][0]] = overRadius
+                DMindices = dmidx
                 
                 if cm[0] > -1:
                     #Calculate Star mass
